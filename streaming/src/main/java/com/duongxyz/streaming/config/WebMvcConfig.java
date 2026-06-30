@@ -10,7 +10,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Áp dụng cấu hình thông quan cho TẤT CẢ API
-                .allowedOrigins("*")
+                .allowedOriginPatterns("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH") // Cho phép mọi phương thức
                 .allowedHeaders("*") // Nhận toàn bộ loại Header từ Frontend
                 .allowCredentials(true) // Cho phép truyền cookie / token xác thực an toàn
