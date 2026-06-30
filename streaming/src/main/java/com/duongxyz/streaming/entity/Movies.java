@@ -1,0 +1,66 @@
+package com.duongxyz.streaming.entity;
+
+import com.duongxyz.streaming.constant.MovieStatus;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.Nationalized;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EntityListeners(AuditingEntityListener.class)
+@Entity
+@Table(name = "movies")
+public class Movies {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "title", nullable = false, length = 255)
+    @Nationalized
+    private String title;
+    @Column(name = "alternative_title", length = 255)
+    private String alternativeTitle;
+    @Column(name = "description")
+    @Lob
+    private String description;
+    @Column(name = "thumbnail_url", length = 500)
+    private String thumbnailUrl;
+    @Column(name = "poster_url")
+    private String posterUrl;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 30)
+    @Builder.Default
+    private MovieStatus status=MovieStatus.COMING_SOON;
+    @Column(name = "schedule", length = 255)
+    private String schedule;
+    @Column(name = "views_total")
+    @Builder.Default
+    private Long viewsTotal = 0L;
+    @CreatedDate // Tự động điền khi insert
+    @Column(name = "created_at", updatable = false, nullable = false)
+    private LocalDateTime createdAt;
+    @LastModifiedDate // Tự động cập nhật khi update
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @ToString.Exclude
+    private List<Episodes> episodes = new ArrayList<>();
+    @Transient // Chỉ dùng ở RAM Java để trả về JSON, không lưu xuống DB
+    private Integer latestEpisode;
+
+    // Tự động lưu cả Movie và Episode nhờ CascadeType.ALL
+    public void addEpisode(Episodes episode) {
+        this.episodes.add(episode);
+        episode.setMovie(this); // Tự động gắn bộ phim cha vào tập phim này
+    }
+}

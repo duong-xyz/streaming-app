@@ -1,0 +1,22 @@
+package com.duongxyz.streaming.form;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class CommentCreateForm {
+    @NotBlank(message = "Nội dung bình luận không được để trống")
+    @Size(max = 2000, message = "Nội dung bình luận không được vượt quá 2000 ký tự")
+    private String content;
+
+    @NotNull(message = "ID tập phim không được để trống")
+    private Long episodeId;
+
+    private Long parentId;
+}
