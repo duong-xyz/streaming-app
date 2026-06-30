@@ -1,0 +1,355 @@
+@import "tailwindcss";
+
+/* 1. Định nghĩa chuyển động dải màu mượt mà */
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 2. Tạo hiệu ứng Hover Gradient Flow chuẩn cho thẻ Link */
+.nav-gradient-link {
+  transition: all 0.3s ease-out;
+}
+
+.nav-gradient-link:hover {
+  /* Tạo dải màu nền ngọc - tím - ngọc */
+  background-image: linear-gradient(to right, #22d3ee, #a855f7, #22d3ee) !important;
+  /* Cắt dải màu lồng vào nét chữ */
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  /* Phóng to nền và kích hoạt chuyển động chạy qua lại */
+  background-size: 200% auto !important;
+  animation: gradient-flow 3s ease infinite !important;
+}
+
+
+/* 1. Định nghĩa chuyển động dịch chuyển dải màu viền */
+@keyframes border-gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 2. Class cấu hình viền chạy dải màu lấp lánh khi Focus */
+.search-focus-flow:focus-within,
+.search-focus-flow.ant-input-affix-wrapper-focused {
+  /* Ép viền mặc định thành trong suốt để lộ nền dải màu ở dưới */
+  border-color: transparent !important;
+
+  /* Tạo dải màu Gradient lặp lại ở hai đầu để không lộ vết nối khi chạy */
+  background-image:
+    linear-gradient(#1f2937, #1f2937),
+    /* Lớp nền tối ở trên để che ruột input */
+    linear-gradient(to right, #22d3ee, #a855f7, #22d3ee) !important;
+  /* Lớp dải màu ở dưới làm viền */
+
+  /* Kỹ thuật tách biệt vùng phủ: Lớp 1 phủ trong ruột (content), Lớp 2 phủ ra tận viền (border) */
+  background-clip: padding-box, border-box !important;
+  background-origin: padding-box, border-box !important;
+
+  /* Phóng to dải màu ra 200% và kích hoạt animation chạy qua lại liên tục */
+  background-size: 100% 100%, 200% auto !important;
+  animation: border-gradient-flow 3s ease infinite !important;
+
+  /* Thêm hiệu ứng đổ bóng mờ màu xanh ngọc lan tỏa ra ngoài */
+  box-shadow: 0 0 15px 3px rgba(34, 211, 238, 0.25) !important;
+}
+
+/* video player css */
+/* ==========================================================================
+   CẤU HÌNH TRÌNH PHÁT VIDEO PLYR CHO WEBSITE XEM PHIM
+   ========================================================================== */
+
+/* 1. Đồng bộ màu sắc chủ đạo sang xanh Cyan tối */
+.plyr-dark-theme {
+  --plyr-color-main: #06b6d4;
+}
+
+.plyr__video-wrapper {
+  background-color: #000 !important;
+}
+
+/* 2. Ép thực thể Plyr luôn chiếm trọn 100% không gian khung div cha aspect-video */
+.plyr-dark-theme .plyr {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.plyr-dark-theme .plyr__plyr {
+  height: 100% !important;
+}
+
+/* 3. Tối ưu hóa giao diện thu gọn khi xem trên điện thoại (Mobile dưới 768px) */
+@media (max-width: 767px) {
+
+  /* Ẩn nút Tua lùi và Tua tiến ở thanh điều khiển đáy */
+  .plyr-dark-theme .plyr__control[data-plyr="rewind"],
+  .plyr-dark-theme .plyr__control[data-plyr="fast-forward"] {
+    display: none !important;
+  }
+
+  /* Ẩn nút Picture-in-Picture (PiP) */
+  .plyr-dark-theme .plyr__control[data-plyr="pip"] {
+    display: none !important;
+  }
+
+  /* Ẩn thanh kéo âm lượng nằm ngang */
+  .plyr-dark-theme .plyr__volume {
+    display: none !important;
+  }
+
+  /* Thu hẹp khoảng cách các nút còn lại cho đỡ chật màn hình dọc */
+  .plyr-dark-theme .plyr__controls {
+    padding: 8px !important;
+    gap: 4px !important;
+  }
+
+  /* Thu nhỏ cỡ chữ hiển thị đồng hồ thời gian */
+  .plyr-dark-theme .plyr__time {
+    font-size: 11px !important;
+    padding: 0 2px !important;
+  }
+}
+
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient-hover {
+  background-size: 200% 200%;
+}
+
+/* Khi hover vào card phim, kích hoạt dải màu dịch chuyển liên tục */
+.group:hover .animate-gradient-hover {
+  animation: gradientShift 2s ease infinite;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* --- HỆ THỐNG PHONG CÁCH XU HƯỚNG HOẠT HÌNH 3D --- */
+.halim-trending-track {
+    cursor: grab;
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding-bottom: 1.5rem;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+    user-select: none;
+    will-change: transform,scroll-position;
+}
+
+.halim-trending-card {
+    cursor: pointer;
+    display: block;
+    flex: 0 0 auto;
+    margin-top: 0;
+    position: relative;
+    width: 224px;
+}
+
+.halim-trending-poster-container {
+    aspect-ratio: 3/4;
+    display: block;
+    overflow: hidden;
+    position: relative;
+}
+
+.halim-trending-poster-image {
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .3s ease;
+    width: 100%;
+}
+
+/* 1. CHUỖI MA TRẬN PHẲNG GỐC VỊ TRÍ LẺ */
+.halim-trending-clip-path-odd {
+    border-radius: 0;
+    -webkit-clip-path: polygon(94.239% 100%,5.761% 100%,5.761% 100%,4.826% 99.95%,3.94% 99.803%,3.113% 99.569%,2.358% 99.256%,1.687% 98.87%,1.111% 98.421%,.643% 97.915%,.294% 97.362%,.075% 96.768%,0 96.142%,0 3.858%,0 3.858%,.087% 3.185%,.338% 2.552%,.737% 1.968%,1.269% 1.442%,1.92% .984%,2.672% .602%,3.512% .306%,4.423% .105%,5.391% .008%,6.4% .024%,94.879% 6.625%,94.879% 6.625%,95.731% 6.732%,96.532% 6.919%,97.272% 7.178%,97.942% 7.503%,98.533% 7.887%,99.038% 8.323%,99.445% 8.805%,99.747% 9.326%,99.935% 9.88%,100% 10.459%,100% 96.142%,100% 96.142%,99.925% 96.768%,99.706% 97.362%,99.357% 97.915%,98.889% 98.421%,98.313% 98.87%,97.642% 99.256%,96.887% 99.569%,96.06% 99.803%,95.174% 99.95%,94.239% 100%);
+    clip-path: polygon(94.239% 100%,5.761% 100%,5.761% 100%,4.826% 99.95%,3.94% 99.803%,3.113% 99.569%,2.358% 99.256%,1.687% 98.87%,1.111% 98.421%,.643% 97.915%,.294% 97.362%,.075% 96.768%,0 96.142%,0 3.858%,0 3.858%,.087% 3.185%,.338% 2.552%,.737% 1.968%,1.269% 1.442%,1.92% .984%,2.672% .602%,3.512% .306%,4.423% .105%,5.391% .008%,6.4% .024%,94.879% 6.625%,94.879% 6.625%,95.731% 6.732%,96.532% 6.919%,97.272% 7.178%,97.942% 7.503%,98.533% 7.887%,99.038% 8.323%,99.445% 8.805%,99.747% 9.326%,99.935% 9.88%,100% 10.459%,100% 96.142%,100% 96.142%,99.925% 96.768%,99.706% 97.362%,99.357% 97.915%,98.889% 98.421%,98.313% 98.87%,97.642% 99.256%,96.887% 99.569%,96.06% 99.803%,95.174% 99.95%,94.239% 100%);
+}
+
+/* 2. CHUỖI MA TRẬN PHẲNG GỐC VỊ TRÍ CHẴN */
+.halim-trending-clip-path-even {
+    border-radius: 0;
+    -webkit-clip-path: polygon(5.761% 100%,94.239% 100%,94.239% 100%,95.174% 99.95%,96.06% 99.803%,96.887% 99.569%,97.642% 99.256%,98.313% 98.87%,98.889% 98.421%,99.357% 97.915%,99.706% 97.362%,99.925% 96.768%,100% 96.142%,100% 3.858%,100% 3.858%,99.913% 3.185%,99.662% 2.552%,99.263% 1.968%,98.731% 1.442%,98.08% .984%,97.328% .602%,96.488% .306%,95.577% .105%,94.609% .008%,93.6% .024%,5.121% 6.625%,5.121% 6.625%,4.269% 6.732%,3.468% 6.919%,2.728% 7.178%,2.058% 7.503%,1.467% 7.887%,.962% 8.323%,.555% 8.805%,.253% 9.326%,.065% 9.88%,0 10.459%,0 96.142%,0 96.142%,.075% 96.768%,.294% 97.362%,.643% 97.915%,1.111% 98.421%,1.687% 98.87%,2.358% 99.256%,3.113% 99.569%,3.94% 99.803%,4.826% 99.95%,5.761% 100%);
+    clip-path: polygon(5.761% 100%,94.239% 100%,94.239% 100%,95.174% 99.95%,96.06% 99.803%,96.887% 99.569%,97.642% 99.256%,98.313% 98.87%,98.889% 98.421%,99.357% 97.915%,99.706% 97.362%,99.925% 96.768%,100% 96.142%,100% 3.858%,100% 3.858%,99.913% 3.185%,99.662% 2.552%,99.263% 1.968%,98.731% 1.442%,98.08% .984%,97.328% .602%,96.488% .306%,95.577% .105%,94.609% .008%,93.6% .024%,5.121% 6.625%,5.121% 6.625%,4.269% 6.732%,3.468% 6.919%,2.728% 7.178%,2.058% 7.503%,1.467% 7.887%,.962% 8.323%,.555% 8.805%,.253% 9.326%,.065% 9.88%,0 10.459%,0 96.142%,0 96.142%,.075% 96.768%,.294% 97.362%,.643% 97.915%,1.111% 98.421%,1.687% 98.87%,2.358% 99.256%,3.113% 99.569%,3.94% 99.803%,4.826% 99.95%,5.761% 100%)
+}
+
+/* LỚP NỀN XÁM SKELETON CHỜ TẢI ẢNH */
+.halim-trending-poster-container:before {
+    background: #2a2b31;
+    content: "";
+    inset: 0;
+    opacity: 1;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity .35s ease;
+    z-index: 0;
+}
+
+/* HIỆU ỨNG VÒNG XOAY SPIN LOADING TRÊN POSTER */
+.halim-trending-poster-container:after {
+    animation: halim-trending-spin .65s linear infinite;
+    border: 3px solid hsla(0,0%,100%,.12);
+    border-radius: 50%;
+    border-top-color: hsla(0,0%,100%,.62);
+    content: "";
+    height: 32px;
+    left: 50%;
+    margin: -16px 0 0 -16px;
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    transition: opacity .35s ease;
+    width: 32px;
+    z-index: 4;
+}
+
+/*ẨN VÒNG XOAY KHI BANNER PHIM ĐÃ LOAD XONG */
+.halim-trending-poster-container.halim-trending-poster-loaded:after {
+    opacity: 0;
+}
+
+@keyframes halim-trending-spin {
+    to { transform: rotate(1turn); }
+}
+
+.halim-trending-poster-mask {
+    background-color: hsla(0,0%,100%,.05);
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: background-color .3s ease;
+    z-index: 1;
+}
+
+.halim-trending-poster-container:hover .halim-trending-poster-image {
+    transform: scale(1.05);
+}
+
+.halim-trending-poster-container:hover .halim-trending-poster-mask {
+    background-color: rgba(255,193,7,.1); /* Màu vàng hổ phách trong suốt 10% */
+}
+
+.halim-trending-rating {
+    align-items: center;
+    background-color: rgba(0,0,0,.7);
+    border-radius: 20px;
+    bottom: 10px;
+    display: flex;
+    padding: 5px 10px;
+    position: absolute;
+    right: 10px;
+    z-index: 3;
+}
+
+.halim-trending-rating-value {
+    color: #ffc107;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.halim-trending-info {
+    align-items: center;
+    display: flex;
+    height: 70px;
+    margin-top: 1rem;
+    overflow: hidden;
+}
+
+.halim-trending-number {
+    background: linear-gradient(39deg,#fecf59,#fff1cc);
+    -webkit-background-clip: text!important;
+    background-clip: text!important;
+    font-size: 3.5em;
+    font-style: italic;
+    font-weight: 800;
+    line-height: 1;
+    -webkit-text-fill-color: transparent!important;
+    align-items: center;
+    color: #fff0;
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    margin-right: .5rem;
+    width: 60px;
+}
+
+.halim-trending-details {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.halim-trending-title-text {
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: .25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.halim-trending-original-title {
+    color: #9ca3af;
+    font-size: 1rem;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .halim-trending-card { width: 220px; }
+    .halim-trending-number { font-size: 3.5em; width: 45px; }
+    .halim-trending-title-text { font-size: 1.2rem; }
+    .halim-trending-info { height: 60px; }
+}
+
+@media (max-width: 480px) {
+    .halim-trending-card { width: 180px; }
+    .halim-trending-number { font-size: 3.5em; width: 40px; }
+    .halim-trending-title-text { font-size: 1.2rem; }
+    .halim-trending-info { height: 50px; }
+}
