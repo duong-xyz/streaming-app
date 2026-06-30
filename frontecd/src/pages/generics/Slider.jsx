@@ -41,7 +41,7 @@ const Slider = forwardRef(({ dataState, navigate, LeftOutlined, PlayCircleFilled
     return (
         <div className='relative group border-b border-gray-900 pb-4 min-h-[285px] sm:min-h-[345px] md:min-h-[375px]'>
             {/* Nút bấm slide sang trái - Ẩn đi nếu danh sách nhỏ hơn hoặc bằng 6 phim và không có nhu cầu cuộn */}
-            {moviesList.length > 6 && (
+            {moviesList.length > 5 && (
                 <button
                     onClick={() => {
                         if (sliderRef.current) {
@@ -149,7 +149,7 @@ const Slider = forwardRef(({ dataState, navigate, LeftOutlined, PlayCircleFilled
             </div>
 
             {/* Nút bấm slide sang phải - Ẩn đi nếu danh sách nhỏ hơn hoặc bằng 6 phim */}
-            {moviesList.length > 6 && (
+            {moviesList.length > 5 && (
                 <button
                     onClick={() => {
                         if (sliderRef.current) {
