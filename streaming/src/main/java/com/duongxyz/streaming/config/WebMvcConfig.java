@@ -10,7 +10,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Áp dụng cấu hình thông quan cho TẤT CẢ API
-                .allowedOrigins("http://localhost:5173", "http://127.0.0.1:5173") // Ép chính xác cổng chạy của React
+                .allowedOrigins("http://localhost:5173",
+                        "http://127.0.0.1:5173",
+                        "http://192.188.188.102:5173"
+                ) // Ép chính xác cổng chạy của React
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH") // Cho phép mọi phương thức
                 .allowedHeaders("*") // Nhận toàn bộ loại Header từ Frontend
                 .allowCredentials(true) // Cho phép truyền cookie / token xác thực an toàn

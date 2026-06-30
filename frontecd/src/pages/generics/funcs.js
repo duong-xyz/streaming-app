@@ -13,43 +13,49 @@ export const setupAutoScrollSlider = (el, originalMovies) => {
     let isMouseInside = false;
     let isAutoScrolling = false;
 
-    // Đã đồng bộ gap = 20 tương ứng class 'gap-5' trên giao diện mới
-    const getOriginalWidth = () => {
-        if (el.children.length === 0) return 0;
+    // SỬA ĐỔI 1: Tự động lấy Gap thực tế từ CSS computed style, tránh lệch vị trí lũy tiến
+    const getLayoutMetrics = () => {
+        if (!el || el.children.length === 0) return { itemWidth: 0, gap: 0, originalWidth: 0 };
+        
         const firstChild = el.children[0];
         const itemWidth = firstChild.getBoundingClientRect().width;
-        const gap = 20; 
-        return (itemWidth + gap) * originalMovies.length;
+        
+        // Đọc giá trị khoảng cách thực tế từ trình duyệt (ví dụ: '20px' từ class 'gap-5')
+        const computedStyle = window.getComputedStyle(el);
+        const gap = parseFloat(computedStyle.columnGap) || 0; 
+        
+        const originalWidth = (itemWidth + gap) * originalMovies.length;
+        return { itemWidth, gap, originalWidth };
     };
 
-    // 1. HÀM THỰC HIỆN CÚ LƯỚT TỰ ĐỘNG (Cuộn mượt khít từng phim một)
+    // 1. HÀM THỰC HIỆN CÚ LƯỚT TỰ ĐỘNG
     const performAutoScroll = () => {
         if (isMouseInside) return;
 
-        const originalWidth = getOriginalWidth();
+        const { itemWidth, gap, originalWidth } = getLayoutMetrics();
         if (originalWidth === 0) return;
 
-        // KIỂM TRA ĐIỂM CHẠM VÔ HẠN (VIRTUAL BOUNDARY RESET)
+        // SỬA ĐỔI 2: Ép buộc trình duyệt nhảy tọa độ tức thời (`behavior: "instant"`)
+        // Triệt tiêu hoàn toàn hiệu ứng cuộn ngược gây giật mắt người dùng khi reset biên
         if (el.scrollLeft >= originalWidth * 2) {
-            el.scrollTo({ left: el.scrollLeft - originalWidth });
+            el.scrollTo({ left: el.scrollLeft - originalWidth, behavior: "instant" });
         }
 
-        // Lấy chiều rộng của đúng 1 item phim đang hiển thị
-        const firstChild = el.children[0];
-        const itemWidth = firstChild ? firstChild.getBoundingClientRect().width : 220;
-        const gap = 20; // Đã đồng bộ gap-5
-
-        const scrollAmount = itemWidth + gap; // Chỉ cuộn vừa đúng khoảng cách của 1 phim
+        const scrollAmount = itemWidth + gap;
 
         isAutoScrolling = true;
         el.scrollBy({ left: scrollAmount, behavior: "smooth" });
 
-        // Chờ hiệu ứng chuyển động mượt hoàn tất (600ms) rồi mới đếm nhịp tiếp theo
+        // SỬA ĐỔI 3: Kiểm tra trạng thái chuột trước khi kích hoạt vòng lặp tiếp theo
+        // Tăng thời gian chờ lên 650ms để đảm bảo hiệu ứng mượt của trình duyệt kết thúc hẳn
         setTimeout(() => {
             isAutoScrolling = false;
-            startAutoScroll();
-        }, 600);
+            if (!isMouseInside) {
+                startAutoScroll();
+            }
+        }, 650);
     };
+
     // 2. HÀM BẮT ĐẦU ĐẾM GIỜ
     const startAutoScroll = () => {
         stopAutoScroll();
@@ -72,6 +78,7 @@ export const setupAutoScrollSlider = (el, originalMovies) => {
         stopAutoScroll();
         if (scrollDebounceTimer) clearTimeout(scrollDebounceTimer);
     };
+    
     const handleMouseLeave = () => {
         isMouseInside = false;
         startAutoScroll();
@@ -82,23 +89,22 @@ export const setupAutoScrollSlider = (el, originalMovies) => {
 
     // 5. SỰ KIỆN CUỘN THỦ CÔNG VÀ KIỂM SOÁT BIÊN ĐỘ VÔ HẠN
     const handleScroll = () => {
-        const originalWidth = getOriginalWidth();
+        const { originalWidth } = getLayoutMetrics();
         if (originalWidth === 0) return;
 
-        // Xử lý biên an toàn khi người dùng tự vuốt/cuộn tay sang 2 đầu cực của Slider
+        // SỬA ĐỔI 4: Áp dụng `behavior: "instant"` khi người dùng vuốt tay chạm biên cực đại
         if (el.scrollLeft >= originalWidth * 2) {
-            el.scrollTo({ left: el.scrollLeft - originalWidth });
+            el.scrollTo({ left: el.scrollLeft - originalWidth, behavior: "instant" });
         } else if (el.scrollLeft <= 5) {
-            el.scrollTo({ left: el.scrollLeft + originalWidth });
+            el.scrollTo({ left: el.scrollLeft + originalWidth, behavior: "instant" });
         }
 
-        // Nếu cuộn do máy chạy tự động -> Bỏ qua không xử lý đè lên luồng thời gian
         if (isAutoScrolling) return;
 
         stopAutoScroll();
         if (scrollDebounceTimer) clearTimeout(scrollDebounceTimer);
 
-        // Đợi người dùng vuốt dừng tay hẳn sau 1.5 giây thì tái kích hoạt tự động chạy tiếp
+        // Đợi người dùng dừng thao tác vuốt 1.5 giây rồi chạy tiếp tự động
         scrollDebounceTimer = setTimeout(() => {
             if (!isMouseInside) {
                 startAutoScroll();
@@ -107,17 +113,19 @@ export const setupAutoScrollSlider = (el, originalMovies) => {
     };
     el.addEventListener("scroll", handleScroll, { passive: true });
 
-    // KHỞI CHẠY LẦN ĐẦU TIÊN: Đưa thanh cuộn về tọa độ cụm số 2 để người dùng có thể cuộn trái/phải vô tận ngay lập tức
-    setTimeout(() => {
-        const originalWidth = getOriginalWidth();
+    // SỬA ĐỔI 5: Tăng độ trễ lên 300ms để đảm bảo các thiết bị cấu hình thấp kịp tính toán hình ảnh hình học (Layout/Paint)
+    // Đồng thời lưu trữ biến timer để dọn dẹp trong hàm cleanup
+    const initTimeout = setTimeout(() => {
+        const { originalWidth } = getLayoutMetrics();
         if (el && originalWidth > 0 && el.scrollLeft === 0) {
-            el.scrollTo({ left: originalWidth });
+            el.scrollTo({ left: originalWidth, behavior: "instant" });
         }
         startAutoScroll();
-    }, 150);
+    }, 300);
 
     // TRẢ VỀ HÀM CLEANUP ĐỂ GIẢI PHÓNG BỘ NHỚ CHO REACT COMPONENT
     return () => {
+        clearTimeout(initTimeout);
         stopAutoScroll();
         if (scrollDebounceTimer) clearTimeout(scrollDebounceTimer);
 
