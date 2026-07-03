@@ -14,9 +14,5 @@ public class CommentCreateForm {
     @NotBlank(message = "Nội dung bình luận không được để trống")
     @Size(max = 2000, message = "Nội dung bình luận không được vượt quá 2000 ký tự")
     private String content;
-
-    @NotNull(message = "ID tập phim không được để trống")
-    private Long episodeId;
-
     private Long parentId;
 }

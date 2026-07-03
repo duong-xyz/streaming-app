@@ -10,7 +10,7 @@ const ListMovie = ({ setActiveFilter, activeFilter, dataState, navigate, handleP
 
     return (
         <div className='lg:col-span-3 space-y-5 select-none'>
-            {/* THANH ĐIỀU HƯỚNG BỘ LỌC (FILTER BAR TÌNH TẾ) */}
+            {/* THANH ĐIỀU HƯỚNG BỘ LỌC */}
             <div className='flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-900 pb-3 gap-3'>
                 <div className='flex items-center gap-2'>
                     <span className='w-1 h-4 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full' />
@@ -19,7 +19,7 @@ const ListMovie = ({ setActiveFilter, activeFilter, dataState, navigate, handleP
                     </h2>
                 </div>
 
-                {/* Tab bộ lọc tinh chỉnh bo tròn mịn */}
+                {/* Tab bộ lọc */}
                 <div className='flex gap-2 overflow-x-auto scrollbar-none py-0.5 text-[11px] font-sans'>
                     {['3D', '2D', '4K', 'Lịch phim'].map((filter) => (
                         <button
@@ -44,7 +44,7 @@ const ListMovie = ({ setActiveFilter, activeFilter, dataState, navigate, handleP
                 </div>
             )}
 
-            {/* KHUNG XƯƠNG LOADING SKELETON (Khóa layout chuẩn kích thước chống nhảy trang CLS) */}
+            {/* KHUNG XƯƠNG LOADING SKELETON */}
             {dataState.loading && (
                 <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5'>
                     {[...Array(8)].map((_, idx) => (
@@ -58,11 +58,11 @@ const ListMovie = ({ setActiveFilter, activeFilter, dataState, navigate, handleP
                     ))}
                 </div>
             )}
-            {/* HIỂN THỊ LƯỚI PHIM THẬT KHI ĐÃ TẢI XONG (LOADING = FALSE) */}
+            {/* HIỂN THỊ LƯỚI PHIM THẬT KHI ĐÃ TẢI XONG */}
             {!dataState.loading && Array.isArray(moviesList) && moviesList.length > 0 && (
                 <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5'>
                     {moviesList.map((movie, index) => {
-                        // Tối ưu LCP: Hàng đầu tiên (4 items đầu) tải ngay lập tức, không dùng hiệu ứng trì hoãn lazy load
+                        // Hàng đầu tiên tải ngay lập tức, không dùng hiệu ứng trì hoãn lazy load
                         const isFirstRow = index < 4;
 
                         return (
@@ -71,7 +71,7 @@ const ListMovie = ({ setActiveFilter, activeFilter, dataState, navigate, handleP
                                 onClick={() => movie?.id && navigate(`/watch/${movie.id}`)}
                                 className='group flex flex-col gap-3 cursor-pointer select-none'
                             >
-                                {/* KHU VỰC IMAGE POSTER: Bo góc sâu và viền gương phản chiếu */}
+                                {/* KHU VỰC IMAGE POSTER */}
                                 <div className='relative aspect-[2/3] w-full overflow-hidden bg-[#0d0f14] rounded-xl shadow-lg border border-white/5 transition-all duration-500 ease-out group-hover:-translate-y-1.5 group-hover:scale-[1.02] group-hover:shadow-[0_8px_25px_rgba(34,211,238,0.15)] group-hover:border-cyan-500/30'>
 
                                     {/* TAG SỐ TẬP GÓC TRÁI: Hiệu ứng Gradient Đỏ-Cam-Vàng có chuyển động khi hover */}
@@ -93,7 +93,7 @@ const ListMovie = ({ setActiveFilter, activeFilter, dataState, navigate, handleP
                                         className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-105'
                                     />
 
-                                    {/* BADGE TRẠNG THÁI / TẬP PHIM CHUYÊN NGHIỆP Ở CHÂN ẢNH */}
+                                    {/* BADGE TRẠNG THÁI / TẬP PHIM Ở CHÂN ẢNH */}
                                     <div className='absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent pt-8 pb-2 px-2.5 text-left'>
                                         <span className="text-[9px] text-cyan-400 font-extrabold tracking-widest uppercase block truncate font-sans drop-shadow-md">
                                             {typeof movie?.status === 'object'
@@ -111,13 +111,13 @@ const ListMovie = ({ setActiveFilter, activeFilter, dataState, navigate, handleP
                                 </div>
 
 
-                                {/* KHU VỰC THÔNG TIN TIÊU ĐỀ: Phân tầng chữ Việt - Anh gọn gàng */}
+                                {/* KHU VỰC THÔNG TIN TIÊU ĐỀ */}
                                 <div className='px-1 flex flex-col gap-0.5 min-h-[48px] justify-center'>
                                     <h3 className="font-bold text-xs sm:text-[13px] text-gray-200 group-hover:text-cyan-400 transition-colors duration-300 truncate" title={movie?.title || ''}>
                                         {movie?.title || 'Chưa có tên'}
                                     </h3>
 
-                                    {/* Thêm tên phụ/tên gốc nhỏ ở dưới tạo chiều sâu bố cục */}
+                                    {/* Thêm tên phụ/tên gốc nhỏ ở dưới */}
                                     <span className="text-[10px] text-gray-500 truncate capitalize font-medium font-sans">
                                         {movie?.subTitle || movie?.originalTitle || 'Updating name...'}
                                     </span>
@@ -140,7 +140,7 @@ const ListMovie = ({ setActiveFilter, activeFilter, dataState, navigate, handleP
                 </div>
             )}
 
-            {/* THANH PHÂN TRANG (PAGINATION ĐẬM CHẤT ĐIỆN ẢNH) */}
+            {/* THANH PHÂN TRANG */}
             {!dataState.loading && totalPages > 1 && (
                 <div className="flex items-center justify-center gap-4 pt-6 border-t border-gray-900 text-xs font-sans">
                     <button

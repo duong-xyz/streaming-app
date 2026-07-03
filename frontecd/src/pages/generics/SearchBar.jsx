@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { SearchOutlined, LoadingOutlined, CloseOutlined, StarFilled } from '@ant-design/icons';
 import movieService from '../../services/movieService';
 import { useNavigate } from 'react-router-dom'
@@ -20,7 +20,7 @@ export default function SearchBar() {
     const resultsContainerRef = useRef(null);
     const mobileInputRef = useRef(null);
 
-    // Mảng dữ liệu mẫu "Gợi ý cho bạn" hiển thị trên giao diện Mobile khi chưa gõ từ khóa
+    // Mảng dữ liệu mẫu "Gợi ý cho bạn"
     const recommendations = [
         { id: 1, title: "Đại Đạo Triều Thiên", score: 4.5, thumbnailUrl: "https://hoathinh3d.co/wp-content/uploads/2025/06/dai-vien-hon.webp" },
         { id: 2, title: "Thiên Tướng", score: 4.5, thumbnailUrl: "https://picsum.photos" },
@@ -29,7 +29,7 @@ export default function SearchBar() {
         { id: 5, title: "Liêu Trai: Lan Nhược Tự", score: 4.7, thumbnailUrl: "https://picsum.photos" },
         { id: 6, title: "Trạch Thiên Ký", score: 4.8, thumbnailUrl: "https://picsum.photos" },
     ];
-    // Logic Debounce gọi API tìm kiếm trực tiếp (Đồng bộ chính xác biến searchTerm)
+    // Logic Debounce gọi API tìm kiếm trực tiếp
     useEffect(() => {
         if (!searchTerm.trim()) {
             setResults([]);
@@ -145,7 +145,7 @@ export default function SearchBar() {
                             {loading ? (
                                 <LoadingOutlined className="!text-cyan-400 text-lg mr-2.5 animate-spin" />
                             ) : (
-                                <SearchOutlined className="!text-gray-400 text-lg mr-2.5" /> 
+                                <SearchOutlined className="!text-gray-400 text-lg mr-2.5" />
                             )}
                             <input
                                 ref={mobileInputRef}
@@ -167,7 +167,7 @@ export default function SearchBar() {
                             </button>
                         </div>
 
-                        {/* VÙNG FIX LỖI TÌM KIẾM MOBILE: Danh sách đổ dọc chạy theo từ khóa động */}
+                        {/* VÙNG TÌM KIẾM MOBILE: Danh sách đổ dọc chạy theo từ khóa động */}
                         {searchTerm.trim() !== "" ? (
                             <div className="mt-4 flex flex-col divide-y divide-[#1e293b]/50 px-4">
                                 {results.length > 0 ? (
@@ -194,24 +194,38 @@ export default function SearchBar() {
                                 <div className="flex items-center text-gray-400 text-xs font-semibold tracking-wider uppercase mb-4">
                                     <span className="text-orange-500 text-sm mr-1.5">✨</span> Gợi ý cho bạn
                                 </div>
-                                <div className="grid grid-cols-3 gap-3">
+                                <div className="mt-4 flex flex-col divide-y divide-[#1e293b]/50 px-4">
                                     {recommendations.map((movie) => (
-                                        <div key={`recommend-${movie.id}`} onClick={() => handleSelectMovie(movie)} className="relative group cursor-pointer flex flex-col">
-                                            <div className="relative aspect-[3/4] w-full rounded-md overflow-hidden bg-gray-900 border border-gray-800">
-                                                <img src={movie.thumbnailUrl} alt={movie.title} className="w-full h-full object-cover" />
-
-                                                {/* Badge Điểm đánh giá */}
-                                                <div className="absolute top-1 right-1 flex items-center bg-black/60 backdrop-blur-xs px-1 py-0.5 rounded text-[10px] text-yellow-400 font-bold gap-0.5">
-                                                    <StarFilled className="text-[9px]" />
-                                                    {movie.score}
+                                        <div
+                                            key={`recommend-${movie.id}`}
+                                            onClick={() => handleSelectMovie(movie)}
+                                            className="flex items-center py-3 active:bg-gray-800/50 cursor-pointer"
+                                        >
+                                            {/* Khối bên trái: Gồm Ảnh và Nội dung chữ */}
+                                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                {/* Khối chứa ảnh (Đã tách biệt) */}
+                                                <div className="relative w-10 h-14 rounded-sm overflow-hidden bg-gray-900 flex-shrink-0">
+                                                    <img
+                                                        src={movie.thumbnailUrl}
+                                                        alt={movie.title}
+                                                        className="w-full h-full object-cover"
+                                                        loading="lazy"
+                                                    />
                                                 </div>
 
-                                                {/* Tiêu đề phim phủ dưới chân ảnh */}
-                                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/70 to-transparent p-2 pt-6">
-                                                    <p className="text-white text-[11px] font-medium leading-tight line-clamp-2">
-                                                        {movie.title}
-                                                    </p>
+                                                {/* Khối chứa chữ */}
+                                                <div className="flex flex-col min-w-0 flex-1">
+                                                    <span className="text-gray-200 text-sm font-medium truncate">{movie.title}</span>
+                                                    <span className="text-gray-500 text-xs truncate mt-0.5">{movie.subTitle || "Chưa cập nhật"}</span>
                                                 </div>
+                                            </div>
+
+                                            {/* Khối bên phải: Điểm số */}
+                                            <div className="flex items-center text-yellow-500 font-bold text-xs gap-1 ml-4 flex-shrink-0">
+                                                <p className="text-yellow-500 text-[11px] font-semibold">
+                                                    {typeof movie.score === 'number' ? movie.score.toFixed(1) : movie.score}
+                                                </p>
+                                                <StarFilled className="text-[10px]" />
                                             </div>
                                         </div>
                                     ))}

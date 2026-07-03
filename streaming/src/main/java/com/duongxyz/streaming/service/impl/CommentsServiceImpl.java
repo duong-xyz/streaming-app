@@ -9,6 +9,8 @@ import com.duongxyz.streaming.form.CommentCreateForm;
 import com.duongxyz.streaming.form.CommentUpdateForm;
 import com.duongxyz.streaming.mapper.CommentMapper;
 import com.duongxyz.streaming.repository.CommentsRepository;
+import com.duongxyz.streaming.repository.EpisodesRepository;
+import com.duongxyz.streaming.repository.UsersRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 @AllArgsConstructor
 @Service
 public class CommentsServiceImpl implements com.duongxyz.streaming.service.CommentsService {
-    private CommentsRepository commentsRepository;
+    private final CommentsRepository commentsRepository;
+    private final UsersRepository usersRepository;
+    private final EpisodesRepository episodesRepository;
 
     @Transactional(readOnly = true)
     @Override
@@ -39,20 +43,15 @@ public class CommentsServiceImpl implements com.duongxyz.streaming.service.Comme
 
     @Transactional
     @Override
-    public CommentUserResponse createComment(CommentCreateForm form, Long currentUserId) {
-        // 1. Áp dụng liên kết lỏng cho User (Lấy từ Token an toàn) và Episode cha
-        Users user = new Users();
-        user.setId(currentUserId);
-
-        Episodes episode = new Episodes();
-        episode.setId(form.getEpisodeId());
+    public CommentUserResponse createComment(CommentCreateForm form, Long episodeId, Long currentUserId, String currentUsername) {
+        Users userProxy = usersRepository.getReferenceById(currentUserId);
+        Episodes episodeProxy = episodesRepository.getReferenceById(episodeId);
 
         Comments.CommentsBuilder commentBuilder = Comments.builder()
                 .content(form.getContent())
-                .user(user)
-                .episode(episode);
+                .user(userProxy)
+                .episode(episodeProxy);
 
-        // 2. Logic lồng nhau (Nếu đây là một phản hồi - Reply)
         if (form.getParentId() != null) {
             Comments parentComment = commentsRepository.findById(form.getParentId())
                     .orElseThrow(() -> new IllegalArgumentException("Bình luận gốc không tồn tại để phản hồi"));
@@ -64,25 +63,21 @@ public class CommentsServiceImpl implements com.duongxyz.streaming.service.Comme
             commentBuilder.parent(parentComment);
         }
         Comments savedComment = commentsRepository.save(commentBuilder.build());
-        return CommentMapper.map(savedComment);
+        return CommentMapper.map(savedComment, currentUsername, currentUserId);
     }
 
     @Transactional
     @Override
-    public CommentUserResponse updateComment(Long commentId, CommentUpdateForm form, Long currentUserId) {
-        // 1. Lấy thực thể cũ lên để cập nhật đè (Bắt buộc truy vấn DB)
+    public CommentUserResponse updateComment(Long commentId, CommentUpdateForm form, Long currentUserId, String currentUsername) {
         Comments comment = commentsRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bình luận cần cập nhật"));
-
-        // 2. Bảo mật hệ thống: Chỉ chính chủ mới được phép thay đổi nội dung
         if (!comment.getUser().getId().equals(currentUserId)) {
             throw new RuntimeException("Bạn không có quyền chỉnh sửa bình luận của người khác");
         }
-
-        // 3. Cập nhật dữ liệu thông qua cơ chế Dirty Checking (Không cần gọi .save())
+        // Cập nhật dữ liệu thông qua cơ chế Dirty Checking (Không cần gọi .save())
         comment.setContent(form.getContent());
 
-        return CommentMapper.map(comment);
+        return CommentMapper.map(comment, currentUsername, currentUserId);
     }
 
     @Transactional
@@ -90,8 +85,6 @@ public class CommentsServiceImpl implements com.duongxyz.streaming.service.Comme
     public void deleteComment(Long commentId, Long currentUserId) {
         Comments comment = commentsRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bình luận cần xóa"));
-
-        // Kiểm tra quyền sở hữu bảo mật
         if (!comment.getUser().getId().equals(currentUserId)) {
             throw new RuntimeException("Bạn không có quyền xóa bình luận của người khác");
         }

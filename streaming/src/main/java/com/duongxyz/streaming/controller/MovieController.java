@@ -27,7 +27,7 @@ public class MovieController {
     private final MoviesService moviesService;
 
     // Lấy danh sách phim phân trang cho trang chủ
-    // Không cần @PreAuthorize -> Mở công khai cho mọi User (hoặc khách) xem danh sách phim
+    // Không cần @PreAuthorize -> Mở công khai
     @GetMapping
     public ResponseEntity<Page<MovieItemResponse>> getAllMovieItems(
             MovieFilterForm form,
@@ -38,7 +38,7 @@ public class MovieController {
     }
 
     // Lấy chi tiết một bộ phim theo ID
-    // Không cần @PreAuthorize -> Mở công khai để ai cũng bấm vào xem chi tiết phim được
+    // Không cần @PreAuthorize -> Mở công khai
     @GetMapping("/{id}")
     public ResponseEntity<MovieResponse> getMovieById(@PathVariable("id") @MovieIdExists Long id) {
         MovieResponse movie = moviesService.findMovieById(id);

@@ -18,9 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class VideoQualityController {
     private final VideoQualitiesService videoQualitiesService;
 
-    // ==================== USER APIS ====================
-
-    // Người dùng lấy danh sách chất lượng video theo tập phim (Ví dụ: /api/v1/video-qualities?episodeId=1)
+    // Người dùng lấy danh sách chất lượng video theo tập phim
     @GetMapping("/api/v1/episodes/{episodeId}/video-qualities")
     public ResponseEntity<Page<VideoQualityUserResponse>> getAllQualitiesForUser(
             @PathVariable Long episodeId,
@@ -31,7 +29,7 @@ public class VideoQualityController {
 
     // ==================== ADMIN APIS ====================
 
-    // Admin lấy danh sách chất lượng video theo tập phim (Ví dụ: /api/v1/admin/video-qualities?episodeId=1)
+    // Admin lấy danh sách chất lượng video theo tập phim
     @GetMapping("/api/v1/admin/episodes/{episodeId}/video-qualities")
     public ResponseEntity<Page<VideoQualityAdminResponse>> getAllQualitiesForAdmin(
             @PathVariable Long episodeId,

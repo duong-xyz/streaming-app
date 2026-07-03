@@ -2,10 +2,9 @@ import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 
 const HeaderAdmin = ({ collapsed, onToggleCollapse }) => {
     return (
-        /* Thay thế Layout.Header bằng thẻ header ngữ nghĩa kết hợp tiện ích căn chỉnh của v4 */
         <header className='bg-slate-100 border-b border-slate-200 h-16 px-6 flex items-center justify-between'>
             
-            {/* NÚT CO GIÃN SIDEBAR - Thay thế AntD Button bằng HTML button thuần */}
+            {/* NÚT CO GIÃN SIDEBAR */}
             <button 
                 type='button'
                 onClick={onToggleCollapse}

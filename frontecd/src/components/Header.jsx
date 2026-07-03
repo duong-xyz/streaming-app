@@ -8,7 +8,7 @@ import {
     HomeOutlined, AppstoreOutlined, VideoCameraOutlined, FieldTimeOutlined
 } from '@ant-design/icons';
 import { useState, useRef, useEffect, memo } from 'react';
-import SearchBar from '../pages/generics/SearchBar';
+import SearchBar from '../pages/generics/SearchBar2';
 import MobileMenu from './MobileMenu';
 
 const Header = () => {
@@ -63,7 +63,7 @@ const Header = () => {
             {/* THANH HEADER CHUẨN */}
             <header className='relative bg-[#111217] border-b border-[#27272a] sticky top-0 z-40 px-4 md:px-8 h-16 flex items-center justify-between overflow-visible'>
 
-                {/* ================= KHU VỰC TRÁI: LOGO VÀ NAV DESKTOP NÂNG CẤP CHUẨN CYAN ================= */}
+                {/* ================= KHU VỰC TRÁI: LOGO VÀ NAV DESKTOP ================= */}
                 <div className='flex items-center gap-6 h-full'>
                     {/* NÚT MỞ MOBILE MENU */}
                     <button
@@ -84,15 +84,15 @@ const Header = () => {
                         <span className='text-orange-500 font-sans antialiased text-[22px] drop-shadow-[0_0_10px_rgba(249,115,22,0.3)]'>.ee</span>
                     </Link>
 
-                    {/* MENU ĐIỀU HƯỚNG DESKTOP ĐÃ ĐƯỢC THAY ÁO MỚI PHONG CÁCH CHUẨN ẢNH MẪU - TÔNG CYAN */}
+                    {/* MENU ĐIỀU HƯỚNG DESKTOP */}
                     <nav className="hidden xl:flex items-center gap-1 font-bold text-[13px] tracking-wide text-gray-300 h-full font-sans">
-                        {/* 1. Nút Trang chủ */}
-                        <Link to="/" className="relative flex items-center gap-1.5 px-4 h-full text-cyan-400 transition-colors duration-300 after:absolute after:bottom-0 after:left-4 after:right-4 after:h-[2px] after:bg-cyan-400 after:shadow-[0_-3px_8px_#22d3ee]">
+                        {/* Nút Trang chủ */}
+                        <Link to="/" className="relative flex items-center gap-1.5 px-4 h-full text-cyan-400 transition-colors duration-300 after:absolute after:bottom-0 after:left-4 after:right-4 after:h-[2px] after:bg-cyan-400 after:shadow-[0_-3px_8px_#22d3ee] after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100">
                             <HomeOutlined className="text-[14px]" /> Trang chủ
                         </Link>
 
-                        {/* 2. Nút TẬP HỢP DROPDOWN THỂ LOẠI (Nhận diện Click mở/đóng) */}
-                        <div className="relative h-full flex items-center" ref={genreDropdownRef}>
+                        {/* Nút TẬP HỢP DROPDOWN THỂ LOẠI */}
+                        <div className="relative h-full flex items-center after:absolute after:bottom-0 after:left-4 after:right-4 after:h-[2px] after:bg-cyan-400 after:shadow-[0_-3px_8px_#22d3ee] after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100" ref={genreDropdownRef}>
                             <button
                                 type="button"
                                 onClick={() => setOpenGenreDropdown(!openGenreDropdown)}
@@ -105,13 +105,13 @@ const Header = () => {
                                 <span className={`text-[9px] transition-transform duration-300 ${openGenreDropdown ? 'rotate-180 text-cyan-400' : 'text-gray-500'}`}>▼</span>
                             </button>
 
-                            {/* DROPDOWN MENU ĐỔ XUỐNG CHUẨN ẢNH MẪU - TÔNG MÀU SẮC CYAN NỔI BẬT */}
+                            {/* DROPDOWN MENU ĐỔ XUỐNG */}
                             {openGenreDropdown && (
                                 <div className="absolute left-0 top-[100%] mt-1 w-44 bg-[#14161f]/95 border border-white/5 rounded-xl shadow-2xl py-2 z-50 backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200">
                                     {/* Mũi tên đỉnh nhọn hướng lên tab cha */}
                                     <div className="absolute -top-1 left-8 w-2 h-2 bg-[#14161f] border-t border-l border-white/5 rotate-45"></div>
 
-                                    {/* Danh sách thể loại bốc từ ảnh mẫu */}
+                                    {/* Danh sách thể loại */}
                                     {[
                                         { name: 'Huyền Huyễn', slug: 'huyen-huyen' },
                                         { name: 'Xuyên Không', slug: 'xuyen-khong' },
@@ -135,13 +135,13 @@ const Header = () => {
                             )}
                         </div>
 
-                        {/* 3. Nút Phim lẻ */}
-                        <Link to="/?category=movie-le" className="flex items-center gap-1.5 px-4 h-full text-gray-400 hover:text-cyan-400 transition-colors duration-300">
+                        {/* Nút Phim lẻ */}
+                        <Link to="/?category=movie-le" className="flex items-center gap-1.5 px-4 h-full text-gray-400 hover:text-cyan-400 transition-colors duration-300 relative after:absolute after:bottom-0 after:left-4 after:right-4 after:h-[2px] after:bg-cyan-400 after:shadow-[0_-3px_8px_#22d3ee] after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100">
                             <VideoCameraOutlined className="text-[14px]" /> Phim Lẻ
                         </Link>
 
-                        {/* 4. Nút Đang chiếu */}
-                        <Link to="/schedule" className="flex items-center gap-1.5 px-4 h-full text-gray-400 hover:text-cyan-400 transition-colors duration-300">
+                        {/* Nút Đang chiếu */}
+                        <Link to="/schedule" className="flex items-center gap-1.5 px-4 h-full text-gray-400 hover:text-cyan-400 transition-colors duration-300 relative after:absolute after:bottom-0 after:left-4 after:right-4 after:h-[2px] after:bg-cyan-400 after:shadow-[0_-3px_8px_#22d3ee] after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100">
                             <FieldTimeOutlined className="text-[14px]" /> Lịch Chiếu
                         </Link>
                     </nav>

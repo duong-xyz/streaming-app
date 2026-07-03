@@ -18,7 +18,7 @@ const SideBarAdmin = ({ collapsed, currentpath, setCollapsed }) => {
             icon: <LogoutOutlined />,
             label: 'Thoát Admin',
             danger: true,
-            style: { marginTop: 'auto' } // Đẩy nút logout xuống đáy menu
+            style: { marginTop: 'auto' } // Đẩy nút logout đáy menu
         }
     ];
 
@@ -30,10 +30,10 @@ const SideBarAdmin = ({ collapsed, currentpath, setCollapsed }) => {
         }
     };
 
-    // Tự dựng cơ chế lắng nghe kích thước màn hình để thay thế hoàn toàn hệ thống breakpoint="lg" của AntD (khi màn hình nhỏ tự co thành icon)
+    // cơ chế lắng nghe kích thước màn hình
     useEffect(() => {
         const handleResize = () => {
-            if (window.innerWidth < 1024) { // Mốc 1024px tương đương chuẩn breakpoint 'lg' của Tailwind
+            if (window.innerWidth < 1024) { // Mốc 1024px tương đương breakpoint 'lg'
                 if (setCollapsed) setCollapsed(true);
             } else {
                 if (setCollapsed) setCollapsed(false);
@@ -45,13 +45,11 @@ const SideBarAdmin = ({ collapsed, currentpath, setCollapsed }) => {
         return () => window.removeEventListener('resize', handleResize);
     }, [setCollapsed]);
     return (
-        /* Thay thế Layout.Sider bằng thẻ aside, thay đổi kích thước linh hoạt từ w-64 sang w-20 khi thu gọn */
         <aside
             className={`border-r border-gray-100 bg-slate-100 h-screen sticky top-0 left-0 z-40 transition-all duration-300 ease-in-out overflow-hidden shadow-xs shrink-0 ${
                 collapsed ? 'w-20' : 'w-64'
             }`}
         >
-            {/* Có thể h-full : height:100% chiếm 100% height phần tử cha / khác:flex flex-col h-[calc(100vh-48px)] */}
             <div className='flex flex-col h-full'>
                 
                 {/* KHỐI BRANDING / LOGO ADMIN (Căn giữa icon khi collapse) */}
@@ -67,7 +65,6 @@ const SideBarAdmin = ({ collapsed, currentpath, setCollapsed }) => {
                 </div>
 
                 {/* !flex !flex-col !h-[calc(100%-64px) */}
-                {/* Thay thế AntD Menu bằng danh sách ul/li ngữ nghĩa, tự động căn giữa các mục button khi collapsed */}
                 <ul className={`bg-slate-100 flex-1 pt-4 pb-6 flex flex-col gap-1 list-none overflow-y-auto style-scrollbar transition-all duration-300 ${
                     collapsed ? 'px-2' : 'px-3'
                 }`}>
@@ -93,7 +90,7 @@ const SideBarAdmin = ({ collapsed, currentpath, setCollapsed }) => {
                                                 ? 'bg-cyan-500/10 text-cyan-600 font-semibold'
                                                 : 'text-slate-600 hover:bg-slate-200/60 hover:text-slate-900'
                                     }`}
-                                    style={collapsed ? {} : { paddingLeft: '20px' }} // Khớp thuộc tính inlineIndent={20} cũ khi mở rộng, gỡ bỏ khi thu gọn để icon không bị lệch tâm
+                                    style={collapsed ? {} : { paddingLeft: '20px' }}
                                 >
                                     <span className="text-base shrink-0 flex items-center justify-center">
                                         {item.icon}

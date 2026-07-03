@@ -18,9 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class EpisodeController {
     private final EpisodesService episodesService;
 
-    // ==================== USER APIS ====================
-
-    // Lấy danh sách tập phim công khai cho người dùng xem công khai
     @GetMapping("/api/v1/movies/{movieId}/episodes")
     public ResponseEntity<Page<EpisodeUserResponse>> getAllEpisodesByMovieForUser(
             @PathVariable Long movieId,
@@ -31,7 +28,6 @@ public class EpisodeController {
 
     // ==================== ADMIN APIS ====================
 
-    // Quản trị viên lấy danh sách tập phim đầy đủ thông tin hệ thống
     @GetMapping("/api/v1/admin/movies/{movieId}/episodes")
     public ResponseEntity<Page<EpisodeAdminResponse>> getAllEpisodesByMovieForAdmin(
             @PathVariable Long movieId,
@@ -40,7 +36,6 @@ public class EpisodeController {
         return ResponseEntity.ok(episodes);
     }
 
-    // Thêm tập phim mới
     @PostMapping("/api/v1/admin/movies/{movieId}/episodes")
     public ResponseEntity<EpisodeAdminResponse> createEpisode(
             @PathVariable Long movieId,
@@ -49,7 +44,6 @@ public class EpisodeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdEpisode);
     }
 
-    // Cập nhật thông tin tập phim
     @PutMapping("/api/v1/admin/episodes/{episodeId}")
     public ResponseEntity<EpisodeAdminResponse> updateEpisode(
             @PathVariable Long episodeId,
@@ -58,10 +52,9 @@ public class EpisodeController {
         return ResponseEntity.ok(updatedEpisode);
     }
 
-    // Xóa tập phim theo ID
     @DeleteMapping("/api/v1/admin/episodes/{episodeId}")
     public ResponseEntity<Void> deleteEpisode(@PathVariable Long episodeId) {
         episodesService.delete(episodeId);
-        return ResponseEntity.noContent().build(); // Trả về HTTP Status 204 No Content
+        return ResponseEntity.noContent().build();
     }
 }

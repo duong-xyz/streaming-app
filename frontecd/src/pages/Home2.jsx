@@ -10,7 +10,6 @@ import {
     InfoCircleOutlined, EyeOutlined, TrophyOutlined,
 } from '@ant-design/icons';
 
-// DỮ LIỆU MẪU ĐÃ ĐỒNG BỘ: Thêm subTitle tiếng Anh tạo bố cục chữ 2 tầng tinh tế
 const MOCK_MOVIES = [
     { id: 1, title: "Phàm Nhân Tu Tiên Phần 3", subTitle: "A Mortal's Journey to Immortality 3", latestEpisode: 158, status: "Đang chiếu", schedule: "Tối T3", viewsTotal: 158200, posterUrl: "https://hoathinh3d.co/wp-content/uploads/2026/06/pham-nhan-tu-tien-phan-3-thumb-300x450.jpg", thumbnailUrl: "https://hoathinh3d.co/wp-content/uploads/2026/06/pham-nhan-tu-tien-phan-3-thumb-300x450.jpg" },
     { id: 2, title: "Tiên Nghịch", subTitle: "Renegade Immortal", latestEpisode: 146, status: "Đang chiếu", schedule: "Tối T7", viewsTotal: 146180, posterUrl: "https://hoathinh3d.co/wp-content/uploads/2023/09/tien-nghich-6-300x450.jpg", thumbnailUrl: "https://hoathinh3d.co/wp-content/uploads/2023/09/tien-nghich-6-300x450.jpg" },
@@ -103,7 +102,7 @@ const Home2 = () => {
         <div className='min-h-screen bg-[#0b0c10] text-gray-300 font-sans antialiased selection:bg-cyan-500 selection:text-black'>
             <div className='max-w-[1400px] mx-auto px-4 md:px-6 py-6 space-y-7'>
 
-                {/* SLIDER PHIM BẢNG XẾP HẠNG 3D SO LE DONGHUA CAO CẤP */}
+                {/* SLIDER PHIM */}
                 <Slider 
                     ref={sliderRef} 
                     dataState={dataState} 
@@ -113,7 +112,7 @@ const Home2 = () => {
                     RightOutlined={<RightOutlined />}        
                 />
 
-                {/* KHỐI THÔNG BÁO TINH TẾ (Phong cách lệnh bài tu tiên tỏa hào quang) */}
+                {/* KHỐI THÔNG BÁO TINH TẾ */}
                 <div className="relative overflow-hidden bg-gradient-to-r from-[#0d1f2d] via-[#091520] to-[#070e14] border border-cyan-500/10 rounded-xl p-4 flex items-center gap-4.5 shadow-xl shadow-black/30 group select-none">
                     {/* Hiệu ứng tia sáng quét mờ khi di chuột vào thông báo */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none" />
@@ -126,12 +125,8 @@ const Home2 = () => {
                         <span className='text-emerald-400 font-extrabold mr-2 uppercase text-[11px] bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md shadow-sm'>
                             Thông Báo
                         </span>
-                        <span className='text-gray-400 font-medium'>Địa chỉ tụ họp tu tiên mới:</span>
-                        <span className='text-cyan-300 font-black underline mx-2 tracking-wider cursor-pointer hover:text-cyan-400 transition-colors'>
-                            XYZHH3D.ch
-                        </span>
                         <span className='text-gray-400 font-normal'>
-                            • Báo danh tại đây {!isAuthenticated && <span onClick={() => navigate('/login')} className='text-cyan-400 font-black hover:underline cursor-pointer mx-0.5'>Đăng nhập</span>} để ghi nhớ thần thông, lưu lịch sử tu luyện. Chưa nhập môn? <span onClick={() => navigate('/login')} className='text-emerald-400 font-black hover:underline cursor-pointer'>Đăng ký ngay</span>
+                            • Báo danh tại đây {!isAuthenticated && <span onClick={() => navigate('/login')} className='text-cyan-400 font-black hover:underline cursor-pointer mx-0.5'>Đăng nhập</span>} để bình luận, lưu lịch xem phim. Chưa có tài khoản? <span onClick={() => navigate('/login')} className='text-emerald-400 font-black hover:underline cursor-pointer'>Đăng ký ngay</span>
                         </span>
                     </div>
                 </div>

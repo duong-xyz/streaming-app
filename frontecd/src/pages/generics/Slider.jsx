@@ -6,17 +6,17 @@ const Slider = forwardRef(({ dataState, navigate, LeftOutlined, PlayCircleFilled
     const moviesList = Array.isArray(dataState?.movies) ? dataState.movies : [];
     const isLoading = moviesList.length === 0;
 
-    // GIẢI PHÁP SỬA LỖI: Lớn hơn 6 phim mới tiến hành nhân bản mảng tạo cuộn vô tận ảo
+    // Lớn hơn 6 phim mới tiến hành nhân bản mảng tạo cuộn vô tận ảo
     const infiniteMovies = useMemo(() => {
         if (isLoading || moviesList.length === 0) return [];
         
-        // 1. Luôn gán thứ hạng cố định chuẩn xác dựa trên danh sách gốc ban đầu (Top 1, Top 2, Top 3...)
+        // Luôn gán thứ hạng cố định chuẩn xác dựa trên danh sách gốc ban đầu (Top 1, Top 2, Top 3...)
         const ratedMovies = moviesList.map((movie, idx) => ({
             ...movie,
             originalRank: idx + 1
         }));
 
-        // ĐIỀU KIỆN SỬA ĐỔI: Chỉ khi số lượng phim LỚN HƠN 6 mới nhân bản 3 lần. Nhỏ hơn hoặc bằng 6 phim thì GIỮ NGUYÊN (nhân bản 1 lần)
+        // Chỉ khi số lượng phim LỚN HƠN 6 mới nhân bản 3 lần. Nhỏ hơn hoặc bằng 6 phim thì GIỮ NGUYÊN (nhân bản 1 lần)
         const multiplier = ratedMovies.length > 5 ? 3 : 1;
         
         const extendedList = [];
@@ -24,7 +24,7 @@ const Slider = forwardRef(({ dataState, navigate, LeftOutlined, PlayCircleFilled
             extendedList.push(...ratedMovies);
         }
 
-        // 3. Đính kèm virtualIndex độc nhất làm key để tránh lỗi lặp DOM trùng key trong React
+        // Đính kèm virtualIndex độc nhất làm key để tránh lỗi lặp DOM trùng key trong React
         return extendedList.map((movie, idx) => ({
             ...movie,
             virtualIndex: idx
@@ -67,14 +67,13 @@ const Slider = forwardRef(({ dataState, navigate, LeftOutlined, PlayCircleFilled
                     Array.from({ length: 6 }).map((_, idx) => (
                         <div
                             key={`slider-skeleton-${idx}`}
-                            className='halim-trending-card shrink-0 w-[180px] sm:w-[220px] md:w-[224px] aspect-[3/4] bg-[#26292e] overflow-hidden animate-pulse halim-trending-clip-path-even'
+                            className='halim-trending-card shrink-0 w-[180px] sm:w-[220px] md:w-[224px] aspect-[3/4] bg-[#26292e] overflow-hidden animate-pulse halim-trending-clip-path-odd'
                         />
                     ))
                 ) : (
                     infiniteMovies.map((movie, index) => {
                         const isFirstFewItems = index < 3;
                         
-                        // Gọi thứ hạng gốc đã gán cố định, triệt tiêu lỗi lặp hiển thị hạng 1, 2, 1, 2
                         const rankNumber = movie.originalRank;
 
                         const isEvenIndex = index % 2 !== 0;
@@ -108,13 +107,13 @@ const Slider = forwardRef(({ dataState, navigate, LeftOutlined, PlayCircleFilled
                                     {/* 3. LỚP ĐÈ TEXT TRẠNG THÁI VÀ BADGE ĐIỂM SỐ (.halim-trending-rating) */}
                                     <div className='absolute inset-0 w-full h-full p-3 flex flex-col justify-between pointer-events-none z-3'>
                                         {/* Khối chứa trạng thái tập phim gốc trên trái */}
-                                        <div className='flex flex-col gap-1 items-start'>
+                                        {/* <div className='flex flex-col gap-1 items-start'>
                                             {movie?.latestEpisode !== undefined && (
                                                 <span className='bg-orange-600/95 backdrop-blur-sm text-white font-black text-[9px] px-2 py-0.5 rounded-md shadow-md tracking-wider uppercase whitespace-nowrap border border-white/5'>
                                                     Tập {movie.latestEpisode} {movie.schedule || ''}
                                                 </span>
                                             )}
-                                        </div>
+                                        </div> */}
 
                                         {/* Khối chứa số điểm đánh giá góc dưới phải */}
                                         <div className='halim-trending-rating'>

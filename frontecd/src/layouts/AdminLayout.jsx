@@ -8,7 +8,6 @@ const AdminLayout = () => {
     const location = useLocation();
     
     return (
-        /* Thay thế Layout ngoài cùng bằng div ngữ nghĩa quản lý flex toàn màn hình */
         <div className="flex h-screen w-screen overflow-hidden bg-slate-100 select-none">
             
             {/* THANH SIDEBAR TRÁI - Nhận diện path và kiểm soát co giãn */}
@@ -27,7 +26,6 @@ const AdminLayout = () => {
                     onToggleCollapse={() => setCollapsed(!collapsed)}
                 />
 
-                {/* Thay thế Layout.Content bằng thẻ main ngữ nghĩa, xử lý cuộn dọc độc lập cho trang nội dung */}
                 <main className="p-8 overflow-y-auto bg-white flex-1 min-h-0 style-scrollbar">
                     <Outlet />
                 </main>

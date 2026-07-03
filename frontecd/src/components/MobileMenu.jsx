@@ -5,20 +5,20 @@ import { Link } from "react-router-dom"
 const MobileMenu = ({ openMobileMenu, setOpenMobileMenu }) => {
     return (
         <>
-            {/* ================= DRAWER TOÀN MÀN HÌNH (Đã đồng bộ lại chỉ số Z-index tầng bậc) ================= */}
-            {/* 1. Lớp nền mờ: Hạ xuống tầng z-40 và ẩn hẳn khi không active để tránh lỗi ám đen màn hình */}
+            {/* ================= DRAWER TOÀN MÀN HÌNH ================= */}
+            {/* Lớp nền mờ */}
             <div
                 onClick={() => setOpenMobileMenu(false)}
                 className={`fixed inset-0 bg-black/70 transition-opacity duration-300 ${openMobileMenu ? "z-41 opacity-100 pointer-events-auto" : "z-[-1] opacity-0 pointer-events-none"
                     }`}
             />
-            {/* 2. Thân Drawer: Đặt onClick tại đây để tự động đóng Menu khi bấm vào bất kỳ Link con nào bên trong */}
+            {/* Thân Drawer */}
             <div
                 onClick={() => setOpenMobileMenu(false)}
                 className={`fixed top-0 left-0 bottom-0 w-[280px] bg-[#0f1115]/95 backdrop-blur-md text-white p-5 overflow-y-auto shadow-2xl border-r border-white/5 transition-transform duration-300 ease-out flex flex-col gap-6 font-sans ${openMobileMenu ? "z-60 transform-none" : "z-[-1] -translate-x-full"
                     }`}
             >
-                {/* Nút Đóng bo viên thuốc */}
+                {/* Nút Đóng */}
                 <button
                     type="button"
                     className='self-start flex items-center gap-1.5 bg-white/[0.04] border border-white/10 hover:bg-white/[0.1] text-gray-300 text-xs font-bold px-4 py-1.5 rounded-full transition-all cursor-pointer'
@@ -26,7 +26,7 @@ const MobileMenu = ({ openMobileMenu, setOpenMobileMenu }) => {
                     <LeftOutlined className='text-[10px]' /> Trở về
                 </button>
 
-                {/* KHỐI ĐĂNG KÝ / ĐĂNG NHẬP (Được tích hợp vào vị trí đầu tiên của Menu con) */}
+                {/* KHỐI ĐĂNG KÝ / ĐĂNG NHẬP */}
                 <div className='flex items-center justify-between gap-3 font-sans bg-white/[0.01] border border-white/5 p-3 rounded-2xl w-full mt-1'>
                     <Link to="/register" className='text-gray-300 hover:text-cyan-400 font-bold px-4 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] transition-all text-xs flex-1 text-center border border-white/5'>
                         Đăng ký
@@ -47,7 +47,7 @@ const MobileMenu = ({ openMobileMenu, setOpenMobileMenu }) => {
                         <span className="text-[11px] text-gray-400 font-bold">Lịch sử xem</span>
                     </Link>
                 </div>
-                {/* Danh sách Menu điều hướng chính (Đã lược bỏ hoàn toàn các onClick trùng lặp) */}
+                {/* Danh sách Menu điều hướng chính */}
                 <nav className="flex flex-col font-bold text-sm tracking-wide border-b border-white/5 pb-4 gap-1">
                     <Link to="/" className="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-lg hover:bg-white/[0.02] transition-all">Trang chủ</Link>
                     <Link to="/schedule" className="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-lg hover:bg-white/[0.02] transition-all">Lịch Chiếu Phim</Link>
@@ -56,7 +56,7 @@ const MobileMenu = ({ openMobileMenu, setOpenMobileMenu }) => {
                     <Link to="/?filter=completed" className="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-lg hover:bg-white/[0.02] transition-all">Phim Đã Hoàn Thành</Link>
                 </nav>
 
-                {/* Khối danh mục lựa chọn Thể Loại (Sạch sẽ, dễ bảo trì cấu trúc định dạng) */}
+                {/* Khối danh mục lựa chọn Thể Loại */}
                 <div className="flex flex-col gap-3">
                     <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest pl-3">Thể loại</h3>
                     <div className="grid grid-cols-2 gap-2 text-xs font-bold px-1">

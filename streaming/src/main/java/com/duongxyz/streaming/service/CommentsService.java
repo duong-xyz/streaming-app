@@ -17,10 +17,10 @@ public interface CommentsService {
     Page<CommentAdminResponse> getAllCommentsForAdmin(Pageable pageable);
 
     @Transactional
-    CommentUserResponse createComment(CommentCreateForm form, Long currentUserId);
+    CommentUserResponse createComment(CommentCreateForm form, Long episodeId, Long currentUserId, String currentUsername);
 
     @Transactional
-    CommentUserResponse updateComment(Long commentId, CommentUpdateForm form, Long currentUserId);
+    CommentUserResponse updateComment(Long commentId, CommentUpdateForm form, Long currentUserId, String currentUsername);
 
     @Transactional
     void deleteComment(Long commentId, Long currentUserId);

@@ -20,6 +20,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,7 +31,6 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
 
-    // API Đăng nhập sinh token JWT
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication =
@@ -38,24 +38,22 @@ public class UserController {
                         new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),loginRequest.getPassword())
                 );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication.getName());
-        // Tìm thông tin user hiển thị kèm ra client
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Assert.notNull(userDetails, "User details must not be null");
+        String jwt = jwtUtils.generateToken(userDetails.getUser());
         UserResponse userResponse = UserMapper.map(userDetails.getUser());
 
         return ResponseEntity.ok(new JwtResponse(jwt, userResponse));
     }
 
     // Lấy danh sách toàn bộ người dùng phân trang
-    // Chỉ ADMIN mới có quyền xem danh sách toàn bộ người dùng phân trang
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')") // Phân quyền trực tiếp
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponse>> getAllUsers(Pageable pageable) {
         Page<UserResponse> users = usersService.findAll(pageable);
         return ResponseEntity.ok(users);
     }
 
-    // Đăng ký/Tạo mới người dùng
     @PostMapping("/register")
     public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRegisterForm form) {
         UserResponse createdUser = usersService.createUser(form);
@@ -71,7 +69,6 @@ public class UserController {
             @Valid @RequestBody UserUpdateForm form) {
         UserResponse updatedUser = usersService.updateUser(form, id);
 
-        // Xử lý trường hợp không tìm thấy người dùng (Service đang trả về null)
         if (updatedUser == null) {
             return ResponseEntity.notFound().build();
         }
@@ -88,6 +85,6 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.noContent().build(); // Trả về 204 No Content khi xóa thành công
+        return ResponseEntity.noContent().build(); // 204
     }
 }

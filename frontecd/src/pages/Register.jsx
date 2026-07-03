@@ -103,10 +103,10 @@ const Register = () => {
       <div className="w-full max-w-md p-6 sm:p-8 bg-[#1f2833] rounded-lg shadow-2xl border border-cyan-500/20">
         <h2 className="text-2xl font-bold text-center text-cyan-400 mb-6 tracking-wide">ĐĂNG KÝ</h2>
 
-        {/* FORM THUẦN HTML - Thay thế cho cấu trúc Form của AntD */}
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
           
-          {/* TRƯỜNG DỮ LIỆU: TÀI KHOẢN */}
+          {/* Account */}
           <div className="flex flex-col gap-1.5">
             <div className={`relative flex items-center bg-[#151a21] border rounded-lg px-3.5 py-2.5 transition-all duration-200 group focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/20 ${
               errors.username ? 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20' : 'border-[#374151]'
@@ -126,7 +126,7 @@ const Register = () => {
             )}
           </div>
 
-          {/* TRƯỜNG DỮ LIỆU: EMAIL */}
+          {/* EMAIL */}
           <div className="flex flex-col gap-1.5">
             <div className={`relative flex items-center bg-[#151a21] border rounded-lg px-3.5 py-2.5 transition-all duration-200 group focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/20 ${
               errors.email ? 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20' : 'border-[#374151]'
@@ -146,7 +146,7 @@ const Register = () => {
             )}
           </div>
 
-          {/* TRƯỜNG DỮ LIỆU: MẬT KHẨU */}
+          {/* Password */}
           <div className="flex flex-col gap-1.5">
             <div className={`relative flex items-center bg-[#151a21] border rounded-lg px-3.5 py-2.5 transition-all duration-200 group focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/20 ${
               errors.password ? 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20' : 'border-[#374151]'
@@ -166,7 +166,7 @@ const Register = () => {
             )}
           </div>
 
-          {/* TRƯỜNG DỮ LIỆU: NHẬP LẠI MẬT KHẨU */}
+          {/* Re-password */}
           <div className="flex flex-col gap-1.5">
             <div className={`relative flex items-center bg-[#151a21] border rounded-lg px-3.5 py-2.5 transition-all duration-200 group focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/20 ${
               errors.confirmPassword ? 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20' : 'border-[#374151]'
@@ -186,7 +186,7 @@ const Register = () => {
             )}
           </div>
 
-          {/* NÚT SUBMIT ĐĂNG KÝ */}
+          {/* Submit button */}
           <button
             type="submit"
             disabled={loading}
@@ -197,7 +197,7 @@ const Register = () => {
           </button>
         </form>
 
-        {/* ĐIỀU HƯỚNG SANG ĐĂNG NHẬP */}
+        {/* Link */}
         <div className="text-center mt-5 text-sm">
           <span className="text-gray-400">Đã có tài khoản? </span>
           <Link to="/login" className="text-cyan-400 hover:text-cyan-300 hover:underline transition-colors font-medium">Đăng nhập</Link>

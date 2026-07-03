@@ -353,3 +353,43 @@
     .halim-trending-title-text { font-size: 1.2rem; }
     .halim-trending-info { height: 50px; }
 }
+
+
+
+
+
+
+
+
+
+
+
+/* Loại bỏ hoàn toàn nút bấm mũi tên lên/xuống của thanh cuộn trên Windows */
+.custom-movie-scrollbar::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Định hình lại thanh cuộn mỏng chuẩn chỉ */
+.custom-movie-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+/* Thanh ray nền màu xanh đen chuẩn theo hệ thống */
+.custom-movie-scrollbar::-webkit-scrollbar-track {
+    background: #213342;
+    border-radius: 0 12px 12px 0;
+}
+
+/* Con lăng di chuyển màu xanh xám */
+.custom-movie-scrollbar::-webkit-scrollbar-thumb {
+    background: #3b6080;
+    border-radius: 10px;
+}
+
+.custom-movie-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #4b7499;
+}
+
+

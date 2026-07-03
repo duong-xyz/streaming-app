@@ -4,6 +4,7 @@ import com.duongxyz.streaming.dto.CommentAdminResponse;
 import com.duongxyz.streaming.dto.CommentUserResponse;
 import com.duongxyz.streaming.form.CommentCreateForm;
 import com.duongxyz.streaming.form.CommentUpdateForm;
+import com.duongxyz.streaming.security.jwt.JwtUtils;
 import com.duongxyz.streaming.service.CommentsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,42 +20,42 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentsService commentsService;
-
-    // ==================== USER APIS ====================
+    private final JwtUtils jwtUtils;
 
     // Lấy cây danh sách bình luận (chỉ lấy gốc parent == null) theo tập phim
-    @GetMapping("/api/v1/comments")
+    @GetMapping("/api/v1/comments/{episodeId}")
     public ResponseEntity<Page<CommentUserResponse>> getCommentsByEpisode(
-            @RequestParam Long episodeId,
+            @PathVariable Long episodeId,
             @PageableDefault(page = 0, size = 20, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<CommentUserResponse> comments = commentsService.getCommentsByEpisode(episodeId, pageable);
         return ResponseEntity.ok(comments);
     }
 
-    // Tạo mới bình luận hoặc phản hồi (Reply)
-    // Tạm thời truyền userId qua Header 'X-User-Id' để giả lập người dùng đang đăng nhập
-    /*
-    * Giúp bạn dễ dàng test API qua Postman bằng cách thêm Key X-User-Id và Value là ID của user vào mục Headers. Khi viết bảo mật bằng Spring Security, bạn sẽ đổi dòng này thành @AuthenticationPrincipal UserDetails userDetails hoặc lấy trực tiếp từ SecurityContextHolder.
-    */
-    @PostMapping("/api/v1/comments")
+    @PostMapping("/api/v1/episodes/{episodeId}/comments")
     public ResponseEntity<CommentUserResponse> createComment(
-            @RequestHeader("X-User-Id") Long currentUserId,
+            @PathVariable Long episodeId,
+            @RequestHeader("Authorization") String bearerToken,
             @Valid @RequestBody CommentCreateForm form) {
-        CommentUserResponse createdComment = commentsService.createComment(form, currentUserId);
+        String token = bearerToken.substring(7);
+        long currentUserId = jwtUtils.extractUserId(token);
+        String currentUsername = jwtUtils.extractUsername(token);
+        CommentUserResponse createdComment = commentsService.createComment(form, episodeId, currentUserId, currentUsername);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
     }
 
-    // Chỉnh sửa nội dung bình luận (Chỉ chính chủ)
     @PutMapping("/api/v1/comments/{id}")
     public ResponseEntity<CommentUserResponse> updateComment(
             @PathVariable("id") Long commentId,
-            @RequestHeader("X-User-Id") Long currentUserId,
+            @RequestHeader("Authorization") String bearerToken,
             @Valid @RequestBody CommentUpdateForm form) {
-        CommentUserResponse updatedComment = commentsService.updateComment(commentId, form, currentUserId);
+        String token = bearerToken.substring(7);
+        long currentUserId = jwtUtils.extractUserId(token);
+        String currentUsername = jwtUtils.extractUsername(token);
+        CommentUserResponse updatedComment = commentsService.updateComment(commentId, form, currentUserId, currentUsername);
         return ResponseEntity.ok(updatedComment);
     }
 
-    // Xóa bình luận (Chỉ chính chủ, tự động xóa reply con nếu cấu hình Cascade)
+    // Xóa bình luận (Chỉ chính chủ, tự động xóa reply con theo cấu hình Cascade)
     @DeleteMapping("/api/v1/comments/{id}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable("id") Long commentId,
