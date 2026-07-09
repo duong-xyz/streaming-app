@@ -67,7 +67,7 @@ public class WebSecurityConfig {
                         .permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/movies", "/api/v1/movies/**")
                         .permitAll()
-                        .requestMatchers("/api/v1/episodes/*/video-qualities")
+                        .requestMatchers("/api/v1/episodes/*/video-qualities", "/api/v1/movies/*/view")
                         .permitAll()
                         .requestMatchers("/error").permitAll() // Cho phép Spring Security chuyển hướng sang trang xử lý lỗi
                         .anyRequest()
