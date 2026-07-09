@@ -38,11 +38,11 @@ public class Comments {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "episode_id", nullable = false)
     private Episodes episode;
-    // Mối quan hệ tự tham chiếu (Bình luận cha)
+    // The self-reference relationship(parent comment)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Comments parent;
-    // Danh sách các bình luận phản hồi (Bình luận con)
+    // List of replies(child comments)
     @Builder.Default
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comments> replies = new ArrayList<>();

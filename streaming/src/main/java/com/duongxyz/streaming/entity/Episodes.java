@@ -23,7 +23,7 @@ public class Episodes {
     private Long id;
     @Column(name = "episode_number", nullable = false)
     private Integer episodeNumber;
-    @Column(name = "title", length = 255) // Tiêu đề tập phim tối đa 255 ký tự
+    @Column(name = "title", length = 255)
     private String title;
     @Column(name = "views")
     @Builder.Default

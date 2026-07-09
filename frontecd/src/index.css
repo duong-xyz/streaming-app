@@ -393,3 +393,122 @@
 }
 
 
+
+
+/* ================= KIẾN TRÚC CÔ LẬP LAYER ĐỒNG BỘ THEO HOATHINH3D GỐC ================= */
+/*  
+   [SỬA LỖI PHẢI PAUSE MỚI ẤN ĐƯỢC - KHI LABEL CŨ NẰM NGOÀI PLYR]:
+   Nút Label cũ nằm ngoài trình phát trong JSX bị lớp mặt nạ cảm ứng vô hình khổng lồ của Plyr che khuất hoàn toàn khi phát phim.
+   Bằng cách dùng JavaScript di chuyển nút thông qua lệnh `beforebegin` để đưa nó vào làm con trực tiếp của khối cha lớn `.plyr`,
+   nút bấm đã chính thức gia nhập bối cảnh xếp tầng (Stacking Context) tối cao của hệ thống trình phát video.
+   Lúc này, thuộc tính `z-index: 10040` mới có tác dụng thực sự, đẩy nhãn Label nằm ngửa lên trên bề mặt lớp mặt nạ vô hình của Plyr.
+   Nhờ đó, ngón tay chạm vào lúc phim ĐANG PHÁT sẽ kích hoạt thẳng sự kiện của Label, sửa dứt điểm lỗi cướp click trên iPhone 12 Safari. */
+
+/* Khung chứa tạo tầng hiển thị biệt lập */
+.plyr-dark-theme {
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+/* 💻📱 ĐỊNH VỊ NÚT SIDEBAR CHO CẢ PC LẪN MOBILE 
+   [SỬA LỖI STACKING CONTEXT DẸT]:
+   Nút Label đã được JavaScript di chuyển bằng lệnh `beforebegin` ra phía trước `.plyr__controls`.
+   Việc bứt phá khỏi cái hộp dẹt ở đáy giúp nút nhảy lên làm con trực tiếp của khung hình lớn `.plyr`.
+   Bây giờ, mốc tọa độ `top: 14px` sẽ ăn chuẩn theo đỉnh cao nhất của toàn bộ màn hình video,
+   giải quyết dứt điểm lỗi kẹt tọa độ layout mà không cần phải can thiệp hay thay đổi CSS của Plyr. */
+.plyr-dark-theme .plyr__custom-sidebar-btn {
+    position: absolute !important;
+    top: 14px !important;    /* Ăn chuẩn theo mép trên cùng của khung phim */
+    right: 14px !important;  /* Ghim sát lề phải video */
+    z-index: 10040 !important; /* Đặt z-index cao để luôn nằm trên bề mặt video và các lớp mặt nạ */
+    background: rgba(0, 0, 0, 0.75) !important;
+    border: 1px solid rgba(63, 63, 70, 0.7) !important;
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    color: #e4e4e7 !important;
+    font-size: 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    transition: all 0.2s ease-in-out;
+    pointer-events: auto !important;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+/* Hiệu ứng hover cho nút */
+.plyr-dark-theme .plyr__custom-sidebar-btn:hover {
+    background: #22d3ee !important; 
+    color: #fff !important;
+    border-color: #22d3ee !important;
+}
+
+/* Khi xem phim yên tĩnh (Thanh điều khiển của Plyr tự ẩn đi), 
+   ta cũng ẩn luôn nút Danh sách tập đi cho đồng bộ trải nghiệm mượt mà */
+.plyr-dark-theme .plyr--hide-controls .plyr__custom-sidebar-btn {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* 🛡️ KHÓA HIỂN THỊ SIDEBAR MENU (QUAN TRỌNG):
+   Đảm bảo khi checkbox được kích hoạt, thanh Sidebar con (.absolute) sẽ đè phẳng lên chế độ Fullscreen */
+.plyr-dark-theme #sidebar-toggle:checked ~ .absolute {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 2147483647 !important; /* Chỉ số tối cao đè bẹp lớp màn Fullscreen đen */
+}
+
+
+
+
+
+
+
+
+/* Lớp ẩn độc quyền bổ trợ cho Tailwind */
+.style-hidden {
+  display: none !important;
+}
+
+@supports (animation-timeline: scroll()) {
+  @keyframes detect-parent-stuck {
+    from { top: -1px; }
+    to { top: 0px; }
+  }
+
+  /* Khởi tạo trục thời gian cuộn cho thẻ cha */
+  .header-parent-sticky {
+    animation: detect-parent-stuck linear both;
+    animation-timeline: scroll();
+    animation-range: entry 0% exit 100%;
+  }
+
+  /* Kịch bản hoạt họa tráo đổi 2 khối bằng phần cứng */
+  @keyframes switch-menu-blocks {
+    /* Khi ở đỉnh trang web (0px đến 64px): Khối 1 HIỆN, Khối 2 ẨN */
+    0%, 99% {
+      --show-block-1: flex;
+      --show-block-2: none;
+    }
+    /* Ngay khi cuộn qua mốc dính đỉnh: Khối 1 ẨN, Khối 2 HIỆN */
+    100% {
+      --show-block-1: none;
+      --show-block-2: flex;
+    }
+  }
+
+  .header-parent-sticky {
+    animation: detect-parent-stuck linear both, switch-menu-blocks linear both;
+    animation-timeline: scroll();
+    animation-range: 0px 64px; /* Chạy đúng khoảng chiều cao của header mẹ */
+  }
+
+  /* Ép trình duyệt thực thi ẩn hiện theo biến hít dính */
+  .header-parent-sticky .menu-khoi-1 {
+    display: var(--show-block-1, flex) !important;
+  }
+  .header-parent-sticky .menu-khoi-2 {
+    display: var(--show-block-2, none) !important;
+  }
+}
+
+
+

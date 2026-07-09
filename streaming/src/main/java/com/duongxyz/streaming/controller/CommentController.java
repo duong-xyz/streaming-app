@@ -64,8 +64,7 @@ public class CommentController {
         return ResponseEntity.noContent().build();
     }
 
-    // ==================== ADMIN APIS ====================
-
+    // ADMIN APIS
     // Admin lấy danh sách phẳng toàn bộ bình luận trong hệ thống để kiểm duyệt, quản lý
     @GetMapping("/api/v1/admin/comments")
     public ResponseEntity<Page<CommentAdminResponse>> getAllCommentsForAdmin(
@@ -73,14 +72,4 @@ public class CommentController {
         Page<CommentAdminResponse> adminComments = commentsService.getAllCommentsForAdmin(pageable);
         return ResponseEntity.ok(adminComments);
     }
-
-
-    /*@GetMapping("/{commentId}/replies")
-    public ResponseEntity<Page<CommentUserResponse>> getReplies(
-            @PathVariable Long commentId,
-            @PageableDefault(size = 5, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-
-        Page<CommentUserResponse> data = commentService.getRepliesByComment(commentId, pageable);
-        return ResponseEntity.ok(data);
-    }*/
 }

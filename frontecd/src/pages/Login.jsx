@@ -71,7 +71,7 @@ const Login = () => {
             <div className={`relative flex items-center bg-[#151a21] border rounded-lg px-3.5 py-2.5 transition-all duration-200 group focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/20 ${
               errors.username ? 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20' : 'border-[#374151]'
             }`}>
-              <UserOutlined className={`text-base transition-colors ${errors.username ? 'text-red-400' : 'text-gray-400 group-focus-within:text-cyan-400'}`} />
+              <UserOutlined className={`text-base transition-colors ${errors.username ? '!text-red-400' : '!text-gray-400 group-focus-within:text-cyan-400'}`} />
               <input
                 type="text"
                 name="username"
@@ -92,7 +92,7 @@ const Login = () => {
             <div className={`relative flex items-center bg-[#151a21] border rounded-lg px-3.5 py-2.5 transition-all duration-200 group focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-400/20 ${
               errors.password ? 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500/20' : 'border-[#374151]'
             }`}>
-              <LockOutlined className={`text-base transition-colors ${errors.password ? 'text-red-400' : 'text-gray-400 group-focus-within:text-cyan-400'}`} />
+              <LockOutlined className={`text-base transition-colors ${errors.password ? '!text-red-400' : '!text-gray-400 group-focus-within:text-cyan-400'}`} />
               <input
                 type="password"
                 name="password"
@@ -102,7 +102,7 @@ const Login = () => {
                 className="w-full bg-transparent text-white placeholder:text-gray-500 text-sm outline-none border-none pl-2.5"
               />
             </div>
-            {/* Hiển thị lỗi Validation y hệt AntD rules */}
+            {/* Hiển thị lỗi Validation */}
             {errors.password && (
               <span className="text-xs text-red-500 pl-1 animate-in fade-in duration-150">{errors.password}</span>
             )}

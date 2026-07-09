@@ -16,7 +16,6 @@ public class CommentMapper {
     // Map từ Entity sang CommentUserResponse (Cấu trúc đệ quy dạng cây lồng nhau cho User)
     public static CommentUserResponse map(Comments comment) {
         if (comment == null) return null;
-
         List<CommentUserResponse> repliesDto = new ArrayList<>();
         if(comment.getReplies() != null && !comment.getReplies().isEmpty()){
             for (Comments reply : comment.getReplies()) {
@@ -30,7 +29,6 @@ public class CommentMapper {
                         .build());
             }
         }
-
         return CommentUserResponse.builder()
                 .id(comment.getId())
                 .content(comment.getContent())

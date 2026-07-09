@@ -145,9 +145,9 @@ export default function SearchBar() {
                         {/* .search-overlay-header */}
                         <div className="flex items-center gap-2.5 px-4 py-3.5 border-b border-[#273e52] bg-[#171e24] shrink-0">
                             {loading ? (
-                                <LoadingOutlined className="text-[#888] text-[22px] shrink-0 animate-spin" />
+                                <LoadingOutlined className="!text-[#888] text-[22px] shrink-0 animate-spin" />
                             ) : (
-                                <SearchOutlined className="text-[#888] text-[22px] shrink-0" />
+                                <SearchOutlined className="!text-[#888] text-[22px] shrink-0" />
                             )}
 
                             {/* #search-overlay-input */}
@@ -231,7 +231,7 @@ export default function SearchBar() {
 
             </div>
             {/* ==================== GIAO DIỆN TRÊN DESKTOP (TỪ MD TRỞ LÊN) ==================== */}
-            <div ref={searchRef} className="relative hidden md:block w-80 max-w-xs group z-50">
+            <div ref={searchRef} className="relative hidden md:block w-90 xl:w-140 max-w-md group z-50">
                 {/* Khung nhập liệu tìm kiếm chính */}
                 <div className="relative flex items-center bg-[#1a1c23] border border-[#262933] rounded-full focus-within:rounded-lg px-4 py-2 transition-all duration-200">
                     {loading ? (

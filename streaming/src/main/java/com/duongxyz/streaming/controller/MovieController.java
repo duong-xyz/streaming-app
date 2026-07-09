@@ -27,7 +27,6 @@ public class MovieController {
     private final MoviesService moviesService;
 
     // Lấy danh sách phim phân trang cho trang chủ
-    // Không cần @PreAuthorize -> Mở công khai
     @GetMapping
     public ResponseEntity<Page<MovieItemResponse>> getAllMovieItems(
             MovieFilterForm form,
@@ -38,15 +37,20 @@ public class MovieController {
     }
 
     // Lấy chi tiết một bộ phim theo ID
-    // Không cần @PreAuthorize -> Mở công khai
     @GetMapping("/{id}")
     public ResponseEntity<MovieResponse> getMovieById(@PathVariable("id") @MovieIdExists Long id) {
         MovieResponse movie = moviesService.findMovieById(id);
         return ResponseEntity.ok(movie);
     }
+    /**
+     * Endpoint receive clicks to increase views asynchronously
+     */
+    @PutMapping("/{id}/view")
+    public ResponseEntity<Void> incrementMovieView(@PathVariable("id") Long id) {
+        moviesService.incrementViewTotals(id);
+        return ResponseEntity.noContent().build();
+    }
 
-    // Tạo mới một bộ phim
-    // CHỈ ADMIN mới có quyền tạo mới phim
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<MovieResponse> createMovie(@Valid @RequestBody MovieCreateForm form) {
@@ -54,8 +58,6 @@ public class MovieController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdMovie);
     }
 
-    // Cập nhật thông tin phim theo ID
-    // CHỈ ADMIN mới có quyền sửa thông tin phim
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MovieResponse> updateMovie(
@@ -65,6 +67,7 @@ public class MovieController {
         return ResponseEntity.ok(updatedMovie);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMovie(@PathVariable("id") @MovieIdExists Long id) {
         moviesService.delete(id);

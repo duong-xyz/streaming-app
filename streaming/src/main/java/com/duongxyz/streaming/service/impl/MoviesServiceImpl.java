@@ -8,6 +8,7 @@ import com.duongxyz.streaming.form.MovieFilterForm;
 import com.duongxyz.streaming.form.MovieUpdateForm;
 import com.duongxyz.streaming.mapper.MovieMapper;
 import com.duongxyz.streaming.repository.MoviesRepository;
+import com.duongxyz.streaming.service.MovieViewOptimizedService;
 import com.duongxyz.streaming.service.MoviesService;
 import com.duongxyz.streaming.specification.MovieSpecification;
 import lombok.AllArgsConstructor;
@@ -25,8 +26,9 @@ import java.util.stream.Collectors;
 public class MoviesServiceImpl implements MoviesService {
     private MoviesRepository moviesRepository;
     private MovieMapper movieMapper;
+    private final MovieViewOptimizedService movieViewOptimizedService;
 
-    // Lấy danh sách phim cho trang chủ (Cực nhẹ, dùng Method Reference 1 param)
+    // Get a list of movies for the homepage (Extremely lightweight, using a 1-param Reference Method)
     @Override
     public Page<MovieItemResponse> findAllMovieItems(MovieFilterForm form, Pageable pageable) {
         Specification spec = MovieSpecification.buildSpec(form);
@@ -35,59 +37,47 @@ public class MoviesServiceImpl implements MoviesService {
             List<Long> MovieIds = moviePage.getContent().stream()
                     .map(Movies::getId)
                     .toList();
-//            List<Object[]> episodeCounts = moviesRepository.countEpisodesByMovieIds(MovieIds);
-//            Map<Long, Long> countMap = episodeCounts.stream().collect(Collectors.toMap(
-//                    row -> (Long) row[0],
-//                    row -> (Long) row[1]
-//            ));
-//            moviePage.forEach(movie -> {
-//                Long count = countMap.getOrDefault(movie.getId(), 0L);
-//                movie.setLatestEpisode(count.intValue());
-//            });
 
-            // 1. Gọi hàm lấy MAX thay vì COUNT
+            // 1. Call the MAX function instead of the COUNT function.
             List<Object[]> maxEpisodes = moviesRepository.findMaxEpisodeByMovieIds(MovieIds);
-
-            // 2. Gom về Map<Long, Integer>. Ép kiểu row[1] về Integer (hoặc kiểu số tương ứng của trường số tập)
+            // 2. Gom về Map<Long, Integer>. Ép kiểu row[1] về Integer (or kiểu số tương ứng của trường số tập)
             Map<Long, Integer> maxEpisodeMap = maxEpisodes.stream().collect(Collectors.toMap(
                     row -> (Long) row[0],
                     row -> row[1] != null ? ((Number) row[1]).intValue() : 0
             ));
-
-            // 3. Set số tập lớn nhất vào từng thực thể Movie
+            // 3. Set số tập biggest vào từng thực thể Movie
             moviePage.forEach(movie -> {
                 Integer maxEpisode = maxEpisodeMap.getOrDefault(movie.getId(), 0);
-                movie.setLatestEpisode(maxEpisode); // Không cần ép kiểu .intValue() nữa vì đã là Integer
+                movie.setLatestEpisode(maxEpisode); // There's no need to cast .intValue() anymore since it's already an Integer
             });
         }
         return moviePage.map(movieMapper::map);
     }
 
-    // Lấy chi tiết một bộ phim (Đầy đủ thông tin, truyền thêm Class đích)
+    // Get details of a movie (Complete information, pass in the target Class)
+    // OPTIMIZATION: Display the total number of views in real-time for users.
     @Override
     public MovieResponse findMovieById(Long id) {
         Movies movie = moviesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Movie not found"));
-
-        return movieMapper.map(movie, MovieResponse.class); // Gọi Overloading 2 (2 tham số)
+        Long realTimeViews = movieViewOptimizedService.getRealTimeViews(movie.getId(), movie.getViewsTotal());
+        movie.setViewsTotal(realTimeViews);
+        return movieMapper.map(movie, MovieResponse.class); //Overloading(2 parameters)
     }
 
-    // 1. Tạo mới phim
     @Override
     public MovieResponse createMovie(MovieCreateForm form) {
-        Movies movieEntity = movieMapper.map(form); // Gọi hàm map(MovieCreateForm)
+        Movies movieEntity = movieMapper.map(form);
         Movies savedMovie = moviesRepository.save(movieEntity);
         return movieMapper.map(savedMovie, MovieResponse.class);
     }
 
-    // 2. Cập nhật phim
     @Override
     public MovieResponse updateMovie(Long id, MovieUpdateForm form) {
         Movies existingMovie = moviesRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy phim"));
+                .orElseThrow(() -> new RuntimeException("Movie is not found"));
 
-        movieMapper.map(form, existingMovie); // Gọi hàm map(MovieUpdateForm, Movies) để cập nhật dữ liệu trực tiếp vào entity
-
+        movieMapper.map(form, existingMovie); // update data directly to the entity
         Movies updatedMovie = moviesRepository.save(existingMovie);
         return movieMapper.map(updatedMovie, MovieResponse.class);
     }
@@ -95,4 +85,11 @@ public class MoviesServiceImpl implements MoviesService {
     public void delete(Long movieId) {
         moviesRepository.deleteById(movieId);
     }
+    // Implement a function to push clicks into the asynchronous RAM queue
+    @Override
+    public void incrementViewTotals(Long movieId) {
+        movieViewOptimizedService.incrementMovieView(movieId);
+    }
+
+
 }

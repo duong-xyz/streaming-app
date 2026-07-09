@@ -184,7 +184,7 @@ const VideoPlayerArea = ({
     };
 
     return (
-        <div className="order-1 lg:order-none lg:col-span-2 flex flex-col gap-4">
+        <div className="col-span-1 order-1 flex flex-col gap-1">
             <div className="w-full bg-black rounded-lg overflow-hidden shadow-2xl border border-gray-900 aspect-video relative group plyr-dark-theme flex items-center justify-center">
 
                 {activeQuality ? (
@@ -222,7 +222,7 @@ const VideoPlayerArea = ({
             {qualities.length > 0 && (
                 <div className="bg-[#1a1c23] border border-gray-800 p-4 rounded-lg">
                     <h4 className="text-xs font-bold text-gray-400 uppercase mb-3 flex items-center gap-1">
-                        <MonitorOutlined /> Lựa chọn chất lượng:
+                        <MonitorOutlined /> Chất lượng:
                     </h4>
                     <div className="flex flex-wrap gap-2">
                         {qualities.map((q) => {

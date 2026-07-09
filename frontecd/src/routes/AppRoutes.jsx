@@ -24,7 +24,7 @@ const AdminDashboard = () => {
 const AppRoutes = () => {
     return (
         <Routes>
-            {/* Cụm User & Guest (Có Header/Footer chung của khách) */}
+            {/* Cụm User & Guest */}
             <Route path='/' element={<MainLayout />}>
                 <Route index element={<Home />} />
                 <Route path="watch/:movieId" element={<WatchMovie />} />

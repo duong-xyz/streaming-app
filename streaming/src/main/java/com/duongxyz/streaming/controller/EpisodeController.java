@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,7 +28,7 @@ public class EpisodeController {
     }
 
     // ==================== ADMIN APIS ====================
-
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/api/v1/admin/movies/{movieId}/episodes")
     public ResponseEntity<Page<EpisodeAdminResponse>> getAllEpisodesByMovieForAdmin(
             @PathVariable Long movieId,
@@ -36,6 +37,7 @@ public class EpisodeController {
         return ResponseEntity.ok(episodes);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/api/v1/admin/movies/{movieId}/episodes")
     public ResponseEntity<EpisodeAdminResponse> createEpisode(
             @PathVariable Long movieId,
@@ -44,6 +46,7 @@ public class EpisodeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdEpisode);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/api/v1/admin/episodes/{episodeId}")
     public ResponseEntity<EpisodeAdminResponse> updateEpisode(
             @PathVariable Long episodeId,
@@ -52,6 +55,7 @@ public class EpisodeController {
         return ResponseEntity.ok(updatedEpisode);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/api/v1/admin/episodes/{episodeId}")
     public ResponseEntity<Void> deleteEpisode(@PathVariable Long episodeId) {
         episodesService.delete(episodeId);

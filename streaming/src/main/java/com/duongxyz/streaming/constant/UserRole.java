@@ -19,6 +19,6 @@ public enum UserRole {
                 return  role;
             }
         }
-        throw new IllegalArgumentException("Mã role không hợp lệ: " + code);
+        throw new IllegalArgumentException("Role code is invalid: " + code);
     }
 }

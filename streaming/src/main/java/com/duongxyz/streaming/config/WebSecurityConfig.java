@@ -34,15 +34,13 @@ public class WebSecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider =
-                new DaoAuthenticationProvider(userDetailsService);
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager
-            (AuthenticationConfiguration authConfig) throws  Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws  Exception {
         return authConfig.getAuthenticationManager();
     }
 
@@ -54,13 +52,12 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ĐOẠN CHỐT: Bảo Spring Security dùng chung cấu hình CORS thông thoáng của WebMvcConfigurer
+                // Spring Security dùng chung cấu hình của WebMvcConfigurer
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(unauthorizedHandler())
                 )
-                // KÍCH HOẠT VÀ NẠP CẤU HÌNH CORS VÀO HỆ THỐNG BẢO MẬT
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )

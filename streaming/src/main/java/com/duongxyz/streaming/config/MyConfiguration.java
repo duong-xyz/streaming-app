@@ -29,16 +29,14 @@ public class MyConfiguration {
             if (!userRepository.existsById(1L)) {
                 Users admin = Users.builder()
                         .username("admin")
-                        .password(passwordEncoder.encode("111111")) // Nên dùng PasswordEncoder nếu có Spring Security
+                        .password(passwordEncoder.encode("111111"))
                         .email("duong@xyz.com")
                         .role(UserRole.ADMIN)
                         .build();
                 userRepository.save(admin);
             }
 
-            // =========================================================================
-            // 2 & 3. KHỞI TẠO 1 ROW CHO BẢNG MOVIES VÀ 1 ROW CHO BẢNG EPISODES
-            // =========================================================================
+            // KHỞI TẠO 1 ROW CHO BẢNG MOVIES VÀ 1 ROW CHO BẢNG EPISODES
             boolean isNewMovieCreated = false;
             Movies savedMovie = null;
 
@@ -72,9 +70,7 @@ public class MyConfiguration {
                 savedMovie = movieRepository.findById(1L).orElse(null);
             }
 
-            // =========================================================================
-            // 4. KHỞI TẠO 1 ROW CHO BẢNG VIDEO_QUALITIES
-            // =========================================================================
+            // KHỞI TẠO 1 ROW CHO BẢNG VIDEO_QUALITIES
             if (!videoQualityRepository.existsById(1L)) {
                 Episodes currentEpisode = null;
 

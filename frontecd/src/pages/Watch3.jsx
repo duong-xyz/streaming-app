@@ -1,14 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { LoadingOutlined } from '@ant-design/icons';
-import { message } from 'antd'; // Giữ lại message thông báo hệ thống theo code gốc
+import { message } from 'antd';
 
 import movieService from '../services/movieService';
 import videoQualityService from '../services/videoQualityService';
 
 import EpisodeSidebar from './watchs/EpisodeSidebar';
-import VideoPlayerArea from './watchs/VideoPlayerPlyr2'; // Gọi đúng file Plyr của bạn
+import VideoPlayerArea from './watchs/VideoPlayerPlyr4';
 import MovieInfoSidebar from './watchs/MovieInfoSidebar';
+import CommentSection from './CommentSection';
 
 function Watch() {
     const { movieId } = useParams();
@@ -32,7 +33,7 @@ function Watch() {
         movie: true,
         video: false
     });
-    const targetEpisodeId = location.state?.targetEpisodeId; 
+    const targetEpisodeId = location.state?.targetEpisodeId;
 
     // --- EFFECT 1: Tải chi tiết thông tin phim & danh sách tập ---
     useEffect(() => {
@@ -42,7 +43,8 @@ function Watch() {
                 const data = await movieService.getMovieById(movieId);
                 const episodeList = data.episodes || [];
                 const sortedEpisodes = [...episodeList].sort((b, a) => a.episodeNumber - b.episodeNumber);
-
+                console.log("views:", data.viewsTotal);
+                
                 setMovieState({
                     detail: data,
                     episodes: sortedEpisodes
@@ -71,7 +73,26 @@ function Watch() {
         if (movieId) fetchMovieDetails();
     }, [movieId, targetEpisodeId]);
 
-    // --- EFFECT 2: Tự động lấy danh sách chất lượng video m3u8 khi đổi tập phim ---
+    // --- EFFECT 2: Tự động tăng lượt xem thực tế khi người dùng vào xem phim ---
+    const movieDetails = movieState.detail;
+    useEffect(() => {
+        const updateMovieViews = async () => {
+            if (!movieState.detail) return;
+            try {
+                const { id, viewsTotal, episodes, ...movieUpdateForm } = movieState.detail;
+                // Gọi API phía Backend để tăng view thật trong Database
+                await movieService.updateMovie(movieId, movieUpdateForm);
+            } catch (error) {
+                console.error("Không thể cập nhật lượt xem:", error);
+            }
+        };
+
+        if (movieId && movieState.detail) updateMovieViews();
+        console.log('tại:', movieState.detail);
+    }, [movieId, movieDetails]); // Chỉ chạy DUY NHẤT một lần khi người dùng ấn vào bộ phim đó
+
+    // --- EFFECT 3: Tự động lấy danh sách chất lượng video m3u8 khi đổi tập phim ---
+    const currentEpisodeId = videoState.activeEpisodeId;
     useEffect(() => {
         const fetchVideoQualities = async () => {
             if (!videoState.activeEpisodeId) return;
@@ -95,7 +116,7 @@ function Watch() {
         };
 
         fetchVideoQualities();
-    }, [videoState.activeEpisodeId]);
+    }, [currentEpisodeId]);
 
     // --- CÁC CALLBACK TỐI ƯU HOÀN TOÀN TRÁNH RE-RENDER VÔ ÍCH ---
     const handleEpisodeChange = useCallback((ep) => {
@@ -115,8 +136,8 @@ function Watch() {
     return (
         <div className="min-h-screen bg-[#0b0c10] text-gray-200 selection:bg-cyan-500/30 selection:text-cyan-200">
             {/* Thanh điều hướng phụ (Breadcrumb) */}
-            <div className="bg-[#14161d] px-4 md:px-8 py-3 border-b border-zinc-900 text-xs text-gray-400 flex items-center gap-2">
-                <button 
+            <div className="bg-[#14161d] px-2 sm:px-4 md:px-8 xl:px-[100px] py-3 border-b border-zinc-900 text-xs text-gray-400 flex items-center gap-2">
+                <button
                     type="button"
                     onClick={() => navigate('/')}
                     className="cursor-pointer hover:text-cyan-400 transition-colors focus:outline-none"
@@ -130,14 +151,7 @@ function Watch() {
             </div>
 
             {/* Khung lưới kết hợp các Component con qua Props */}
-            <main className="px-4 md:px-6 py-6 w-full mx-auto grid grid-cols-1 lg:grid-cols-4 gap-2">
-                {/* Thanh danh sách tập phim phía bên trái */}
-                <EpisodeSidebar
-                    episodes={movieState.episodes}
-                    activeEpisodeId={videoState.activeEpisodeId}
-                    onEpisodeChange={handleEpisodeChange}
-                />
-
+            <main className="px-1 sm:px-4 md:px-8 xl:px-12 py-6 w-full max-w-7xl mx-auto grid grid-cols-1 gap-6">
                 {/* Khu vực phát Video trung tâm */}
                 <VideoPlayerArea
                     loadingVideo={loadingState.video}
@@ -145,13 +159,26 @@ function Watch() {
                     qualities={videoState.qualities}
                     activeQuality={videoState.activeQuality}
                     onQualityChange={handleQualityChange}
+                    episodes={movieState.episodes}
+                    onEpisodeChange={handleEpisodeChange}
+                />
+
+                {/* Thanh danh sách tập phim phía bên trái */}
+                <EpisodeSidebar
+                    episodes={movieState.episodes}
+                    activeEpisodeId={videoState.activeEpisodeId}
+                    onEpisodeChange={handleEpisodeChange}
+                    setMovieState={setMovieState}
                 />
 
                 {/* Thanh thông tin phim bổ sung phía bên phải */}
-                <MovieInfoSidebar 
-                    detail={movieState.detail} 
-                    activeQuality={videoState.activeQuality} 
+                <MovieInfoSidebar
+                    detail={movieState.detail}
+                    activeQuality={videoState.activeQuality}
                 />
+                <div className='col-span-1 order-4 w-full'>
+                    <CommentSection episodeId={videoState.activeEpisodeId} />
+                </div>
             </main>
 
             {/* HỆ THỐNG CUSTOM SCROLLBAR: Chuyển đổi gọn gàng sang cú pháp tiêu chuẩn CSS */}

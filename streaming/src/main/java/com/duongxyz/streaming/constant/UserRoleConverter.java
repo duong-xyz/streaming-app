@@ -5,13 +5,13 @@ import jakarta.persistence.Converter;
 
 @Converter(autoApply = false)
 public class UserRoleConverter implements AttributeConverter<UserRole, Byte> {
-    // Chuyển từ Enum sang Byte để lưu xuống DB
+    // convert from Enum to Byte for save to DB
     @Override
     public Byte convertToDatabaseColumn(UserRole userRole) {
         if (userRole == null) {return null;}
         return userRole.getCode();
     }
-    // Chuyển từ Byte ở DB ngược lại thành Enum trong Java
+    // convert from Byte at DB against to Enum in Java
     @Override
     public UserRole convertToEntityAttribute(Byte aByte) {
         if(aByte==null)return null;

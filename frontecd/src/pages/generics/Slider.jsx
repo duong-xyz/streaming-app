@@ -1,5 +1,5 @@
 import { forwardRef, memo, useEffect, useMemo } from "react";
-import { setupAutoScrollSlider } from "./funcs";
+import { setupAutoScrollSlider2 } from "./funcs";
 
 const Slider = forwardRef(({ dataState, navigate, LeftOutlined, PlayCircleFilled, RightOutlined }, ref) => {
     const sliderRef = ref;
@@ -34,7 +34,7 @@ const Slider = forwardRef(({ dataState, navigate, LeftOutlined, PlayCircleFilled
     // Chỉ kích hoạt tự động cuộn vô tận nếu danh sách phim lớn hơn 5 phần tử
     useEffect(() => {
         if (isLoading || moviesList.length <= 5) return;
-        const cleanup = setupAutoScrollSlider(sliderRef.current, moviesList);
+        const cleanup = setupAutoScrollSlider2(sliderRef.current, moviesList);
         return cleanup;
     }, [moviesList, isLoading, sliderRef]);
 
@@ -99,11 +99,11 @@ const Slider = forwardRef(({ dataState, navigate, LeftOutlined, PlayCircleFilled
 
                                     <div className='halim-trending-poster-mask' />
                                     
-                                    <div className='absolute inset-0 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[0.5px] z-2'>
+                                    {/* <div className='absolute inset-0 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[0.5px] z-2'>
                                         <div className='transform scale-75 group-hover/item:scale-100 transition-all duration-300 text-yellow-400 drop-shadow-[0_0_15px_rgba(234,179,8,0.6)] text-3xl'>
                                             {PlayCircleFilled}
                                         </div>
-                                    </div>
+                                    </div> */}
                                     {/* 3. LỚP ĐÈ TEXT TRẠNG THÁI VÀ BADGE ĐIỂM SỐ (.halim-trending-rating) */}
                                     <div className='absolute inset-0 w-full h-full p-3 flex flex-col justify-between pointer-events-none z-3'>
                                         {/* Khối chứa trạng thái tập phim gốc trên trái */}

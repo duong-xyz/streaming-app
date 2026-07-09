@@ -3,7 +3,7 @@ import { HeartOutlined, CommentOutlined } from '@ant-design/icons';
 
 const MovieInfoSidebar = ({ detail, activeQuality }) => {
     return (
-        <div className="order-3 lg:order-none lg:col-span-1 bg-[#1a1c23] border border-zinc-800 rounded-lg p-5 flex flex-col gap-4">
+        <div className="col-span-1 order-3 bg-[#1a1c23] border border-zinc-800 rounded-lg p-5 flex flex-col gap-4">
             <div>
                 <h1 className="text-lg md:text-xl font-bold text-white tracking-wide">{detail?.title}</h1>
                 {detail?.alternativeTitle && (

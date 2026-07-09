@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Getter
-//@JsonFormat(shape = JsonFormat.Shape.OBJECT) // <--- Biến Enum thành một JSON Object khi trả về API
+//@JsonFormat(shape = JsonFormat.Shape.OBJECT) // make Enum to JSON Object when return API
 public enum MovieStatus {
     COMING_SOON("COMING_SOON", "Sắp chiếu"),
     SHOWING("SHOWING", "Đang chiếu"),
@@ -29,23 +29,19 @@ public enum MovieStatus {
         return map;
     }
 
-    // =========================================================================
-    // BỔ SUNG: HÀM GIẢI MÃ CHUỖI CHỮ "SHOWING" TỪ TRÌNH DUYỆT GỬI LÊN (PUT/POST)
-    // =========================================================================
+    // HÀM GIẢI MÃ CHUỖI CHỮ "SHOWING" TỪ TRÌNH DUYỆT GỬI LÊN (PUT/POST)
     @JsonCreator
     public static MovieStatus fromValue(Object value) {
-        // Trường hợp 1: Nếu Frontend gửi lên dạng Object { "code": "SHOWING" }
+        // case 1: Nếu Frontend gửi lên dạng Object { "code": "SHOWING" }
         if (value instanceof Map) {
             Map<?, ?> map = (Map<?, ?>) value;
             String code = (String) map.get("code");
             return fromCodeString(code);
         }
-
-        // Trường hợp 2: Nếu Frontend gửi lên dạng chuỗi chữ thuần "SHOWING" (Trường hợp hiện tại của bạn)
+        // case 2: Nếu Frontend gửi lên dạng chuỗi chữ thuần "SHOWING"
         if (value instanceof String) {
             return fromCodeString((String) value);
         }
-
         return COMING_SOON;
     }
 

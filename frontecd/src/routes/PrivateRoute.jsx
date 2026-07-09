@@ -5,6 +5,7 @@ import { message } from 'antd'
 const PrivateRoute = ({ children, requireAdmin = false }) => {
     // Lấy trạng thái login và quyền từ Redux Store
     const { isAuthenticated, isAdmin } = useSelector(state => state.auth);
+    
     // Check
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class VideoQualityController {
     private final VideoQualitiesService videoQualitiesService;
 
-    // Người dùng lấy danh sách chất lượng video theo tập phim
+    // User get video quality list by episode
     @GetMapping("/api/v1/episodes/{episodeId}/video-qualities")
     public ResponseEntity<Page<VideoQualityUserResponse>> getAllQualitiesForUser(
             @PathVariable Long episodeId,
@@ -28,8 +29,8 @@ public class VideoQualityController {
     }
 
     // ==================== ADMIN APIS ====================
-
-    // Admin lấy danh sách chất lượng video theo tập phim
+    // Admin get video quality list by episode
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/api/v1/admin/episodes/{episodeId}/video-qualities")
     public ResponseEntity<Page<VideoQualityAdminResponse>> getAllQualitiesForAdmin(
             @PathVariable Long episodeId,
@@ -39,6 +40,7 @@ public class VideoQualityController {
     }
 
     // Thêm chất lượng video mới cho tập phim
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/api/v1/admin/episodes/{episodeId}/video-qualities")
     public ResponseEntity<VideoQualityAdminResponse> createQuality(
             @Valid @RequestBody VideoQualityCreateForm form,
@@ -47,7 +49,7 @@ public class VideoQualityController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdQuality);
     }
 
-    // Cập nhật thông tin chất lượng video
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/api/v1/admin/video-qualities/{id}")
     public ResponseEntity<VideoQualityAdminResponse> updateQuality(
             @PathVariable Long id,
@@ -56,7 +58,7 @@ public class VideoQualityController {
         return ResponseEntity.ok(updatedQuality);
     }
 
-    // Xóa chất lượng video theo ID
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/api/v1/admin/video-qualities/{id}")
     public ResponseEntity<Void> deleteQuality(@PathVariable Long id) {
         videoQualitiesService.delete(id);

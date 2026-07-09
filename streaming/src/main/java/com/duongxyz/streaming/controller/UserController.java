@@ -46,7 +46,6 @@ public class UserController {
         return ResponseEntity.ok(new JwtResponse(jwt, userResponse));
     }
 
-    // Lấy danh sách toàn bộ người dùng phân trang
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponse>> getAllUsers(Pageable pageable) {
@@ -80,11 +79,9 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         boolean isDeleted = usersService.deleteUser(id);
-
         if (!isDeleted) {
             return ResponseEntity.notFound().build();
         }
-
         return ResponseEntity.noContent().build(); // 204
     }
 }

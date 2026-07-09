@@ -3,11 +3,12 @@ package com.duongxyz.streaming.entity;
 import com.duongxyz.streaming.constant.MovieStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Nationalized;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,7 @@ public class Movies {
     @Column(name = "alternative_title", length = 255)
     private String alternativeTitle;
     @Column(name = "description")
-    @Lob
+    @JdbcTypeCode(Types.LONGNVARCHAR) //@Nationalized for Unicode use with length
     private String description;
     @Column(name = "thumbnail_url", length = 500)
     private String thumbnailUrl;

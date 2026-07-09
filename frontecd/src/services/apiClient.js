@@ -35,12 +35,13 @@ apiClient.interceptors.response.use(
             return Promise.reject(new Error("Không thể kết nối tới máy chủ Backend. Vui lòng kiểm tra lại server!"));
         }
         const { status } = error.response;
+        const isCommentApi = error.config?.url?.includes('/comments');
+        
         if (status === 401) {
-            console.log(error.response);
             console.warn("Phiên làm việc đã hết hạn hoặc không hợp lệ. Đang tự động đăng xuất...");
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '/login';
+            if (!isCommentApi) window.location.href = '/login';
         }
 
         return Promise.reject(error);

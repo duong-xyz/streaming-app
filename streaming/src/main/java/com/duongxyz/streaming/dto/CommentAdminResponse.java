@@ -18,5 +18,5 @@ public class CommentAdminResponse {
     private Long userId;
     private String username;
     private Long episodeId;
-    private Long parentId; // Hiển thị ID cha trực tiếp thay vì lồng danh sách object
+    private Long parentId;
 }
