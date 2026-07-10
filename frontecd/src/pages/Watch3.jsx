@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { LoadingOutlined } from '@ant-design/icons';
 import { message } from 'antd';
@@ -15,6 +15,7 @@ function Watch() {
     const { movieId } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
+    const isApiCalledInCurrentRender = useRef(false);
 
     // --- CẤU TRÚC GỘP NHÓM OBJECT STATE CHỦ ĐẠO (Giữ nguyên 100% logic gốc) ---
     const [movieState, setMovieState] = useState({
@@ -43,8 +44,7 @@ function Watch() {
                 const data = await movieService.getMovieById(movieId);
                 const episodeList = data.episodes || [];
                 const sortedEpisodes = [...episodeList].sort((b, a) => a.episodeNumber - b.episodeNumber);
-                console.log("views:", data.viewsTotal);
-                
+
                 setMovieState({
                     detail: data,
                     episodes: sortedEpisodes
@@ -73,23 +73,30 @@ function Watch() {
         if (movieId) fetchMovieDetails();
     }, [movieId, targetEpisodeId]);
 
-    // --- EFFECT 2: Tự động tăng lượt xem thực tế khi người dùng vào xem phim ---
-    const movieDetails = movieState.detail;
     useEffect(() => {
-        const updateMovieViews = async () => {
-            if (!movieState.detail) return;
-            try {
-                const { id, viewsTotal, episodes, ...movieUpdateForm } = movieState.detail;
-                // Gọi API phía Backend để tăng view thật trong Database
-                await movieService.updateMovie(movieId, movieUpdateForm);
-            } catch (error) {
-                console.error("Không thể cập nhật lượt xem:", error);
-            }
-        };
-
-        if (movieId && movieState.detail) updateMovieViews();
-        console.log('tại:', movieState.detail);
-    }, [movieId, movieDetails]); // Chỉ chạy DUY NHẤT một lần khi người dùng ấn vào bộ phim đó
+        const sessionKey = `viewed_movie_${movieId}`;
+        const isAlreadyViewedInSession = sessionStorage.getItem(sessionKey);
+        if (!isApiCalledInCurrentRender.current && !isAlreadyViewedInSession) {
+            // Throttle delay 15s
+            const timer = setTimeout(() => {
+                isApiCalledInCurrentRender.current = true; //lock to prevent other thread interfering
+                // Use setTimeout 0ms to push this entire heavy task into the Event Loop queue at the very end
+                // This immediately frees up the UI thread for the video player without stuttering
+                setTimeout(async () => {
+                    try {
+                        sessionStorage.setItem(sessionKey, 'true');
+                        movieService.incrementTotalViews(movieId).catch(err => 
+                            console.log('Implicit API dispatch error:', err)
+                        );
+                        console.log("increase views");
+                    } catch (error) {
+                        console.log('Error when submitting API to increase views:', error);
+                    }
+                }, 0);
+            }, 15000);
+            return () => clearTimeout(timer);
+        }
+    }, [movieId]);
 
     // --- EFFECT 3: Tự động lấy danh sách chất lượng video m3u8 khi đổi tập phim ---
     const currentEpisodeId = videoState.activeEpisodeId;

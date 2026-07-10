@@ -1,80 +1,185 @@
-import { LeftOutlined, HeartFilled, HistoryOutlined } from '@ant-design/icons'
-import { memo } from 'react';
-import { Link } from "react-router-dom"
+import React, { memo } from 'react';
+import { Link } from "react-router-dom";
+import { 
+    LeftOutlined, HeartFilled, HistoryOutlined, 
+    HomeOutlined, CalendarOutlined, ClockCircleOutlined,
+    UserOutlined, UserAddOutlined, AppstoreOutlined
+} from '@ant-design/icons';
 
 const MobileMenu = ({ openMobileMenu, setOpenMobileMenu }) => {
     return (
         <>
-            {/* ================= DRAWER TOÀN MÀN HÌNH ================= */}
-            {/* Lớp nền mờ */}
+            {/* LỚP NỀN MỜ PHỦ KÍNH (Mã màu gốc Halim kết hợp hiệu ứng sương mờ 4px) */}
             <div
                 onClick={() => setOpenMobileMenu(false)}
-                className={`fixed inset-0 bg-black/70 transition-opacity duration-300 ${openMobileMenu ? "z-41 opacity-100 pointer-events-auto" : "z-[-1] opacity-0 pointer-events-none"
-                    }`}
+                className={`fixed inset-0 backdrop-blur-[4px] transition-opacity duration-300 ${
+                    openMobileMenu ? "z-[9999] opacity-100 pointer-events-auto bg-black/65" : "z-[-1] opacity-0 pointer-events-none"
+                }`}
             />
-            {/* Thân Drawer */}
+
+            {/* THÂN DRAWER CHUẨN MENU SIDEBAR HALIM THEMES (Màu nền --lc-ink đặc nguyên bản) */}
             <div
-                onClick={() => setOpenMobileMenu(false)}
-                className={`fixed top-0 left-0 bottom-0 w-[280px] bg-[#0f1115]/95 backdrop-blur-md text-white p-5 overflow-y-auto shadow-2xl border-r border-white/5 transition-transform duration-300 ease-out flex flex-col gap-6 font-sans ${openMobileMenu ? "z-60 transform-none" : "z-[-1] -translate-x-full"
-                    }`}
+                className={`fixed top-0 left-0 bottom-0 w-[280px] bg-[#0c0818] border-r border-[rgba(232,200,114,0.12)] p-5 overflow-y-auto shadow-[5px_0_30px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-out flex flex-col gap-5 font-sans ${
+                    openMobileMenu ? "z-[10000] transform-none" : "z-[-1] -translate-x-full"
+                }`}
+                style={{ fontFamily: "'Be Vietnam Pro', 'Montserrat', sans-serif" }}
             >
-                {/* Nút Đóng */}
+                {/* THANH ĐẦU DRAWER: NÚT TRỞ VỀ */}
                 <button
                     type="button"
-                    className='self-start flex items-center gap-1.5 bg-white/[0.04] border border-white/10 hover:bg-white/[0.1] text-gray-300 text-xs font-bold px-4 py-1.5 rounded-full transition-all cursor-pointer'
+                    onClick={() => setOpenMobileMenu(false)}
+                    className="self-start flex items-center gap-2 bg-[rgba(232,200,114,0.05)] border border-[rgba(232,200,114,0.15)] hover:border-[#5ec4a0]/40 text-[#c4b896] hover:text-[#5ec4a0] text-[11px] font-bold px-3.5 py-2 rounded transition-all cursor-pointer outline-none"
                 >
-                    <LeftOutlined className='text-[10px]' /> Trở về
+                    <LeftOutlined className="text-[10px]" />
+                    <span>Trở về</span>
                 </button>
 
-                {/* KHỐI ĐĂNG KÝ / ĐĂNG NHẬP */}
-                <div className='flex items-center justify-between gap-3 font-sans bg-white/[0.01] border border-white/5 p-3 rounded-2xl w-full mt-1'>
-                    <Link to="/register" className='text-gray-300 hover:text-cyan-400 font-bold px-4 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] transition-all text-xs flex-1 text-center border border-white/5'>
-                        Đăng ký
+                {/* KHỐI ĐĂNG NHẬP / ĐĂNG KÝ (Layout tối giản theo phong vị thanh lịch của Halim) */}
+                <div className="flex flex-col gap-2 bg-[rgba(14,10,28,0.6)] border border-[rgba(232,200,114,0.08)] p-3 rounded-lg shadow-inner">
+                    <Link 
+                        to="/login" 
+                        onClick={() => setOpenMobileMenu(false)}
+                        className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#007ba6] to-[#00aae0] text-white font-black py-2 rounded text-xs tracking-wider uppercase shadow-[0_4px_12px_rgba(0,170,224,0.2)] hover:brightness-110 transition-all border-none"
+                    >
+                        <UserOutlined className="text-sm" />
+                        <span>Đăng Nhập</span>
                     </Link>
-                    <Link to="/login" className="bg-gradient-to-r from-cyan-500 to-blue-500 text-center text-black hover:brightness-110 font-black px-4 py-2 rounded-xl transition-all shadow-lg shadow-cyan-500/10 text-xs tracking-wide flex-1">
-                        Đăng nhập
+                    <Link 
+                        to="/register" 
+                        onClick={() => setOpenMobileMenu(false)}
+                        className="flex items-center justify-center gap-2 bg-[rgba(0,0,0,0.3)] border border-[rgba(232,200,114,0.12)] text-[#c4b896] hover:text-[#f0e4c8] hover:border-[#5ec4a0]/40 font-bold py-2 rounded text-xs tracking-wide transition-all"
+                    >
+                        <UserAddOutlined className="text-sm text-[#e8c872]" />
+                        <span>Tạo Tài Khoản</span>
                     </Link>
                 </div>
 
-                {/* Liên kết nhanh Yêu thích và Lịch sử */}
-                <div className="mt-2 grid grid-cols-2 gap-3 text-center border-b border-white/5 pb-5">
-                    <Link to="/favorites" className="flex flex-col items-center gap-1.5 group p-2 rounded-xl bg-white/[0.01] border border-white/5 hover:border-cyan-500/20 transition-all">
-                        <HeartFilled className="text-lg text-rose-500 group-hover:scale-110 transition-transform drop-shadow-[0_0_5px_rgba(244,63,94,0.3)]" />
-                        <span className="text-[11px] text-gray-400 font-bold">Yêu thích</span>
+                {/* LIÊN KẾT NHANH TÁC VỤ (Phân tách mỏng chuẩn Halim block) */}
+                <div className="grid grid-cols-2 gap-2 border-b border-[rgba(232,200,114,0.08)] pb-4 select-none">
+                    <Link 
+                        to="/favorites" 
+                        onClick={() => setOpenMobileMenu(false)}
+                        className="flex items-center justify-center gap-2 p-2.5 rounded bg-[rgba(0,0,0,0.2)] border border-[rgba(232,200,114,0.06)] hover:border-[#5ec4a0]/30 transition-all group"
+                    >
+                        <HeartFilled className="text-xs text-[#c45c5c] group-hover:scale-110 transition-transform" />
+                        <span className="text-[11px] text-[#c4b896] group-hover:text-[#f0e4c8] font-bold">Yêu thích</span>
                     </Link>
-                    <Link to="/history" className="flex flex-col items-center gap-1.5 group p-2 rounded-xl bg-white/[0.01] border border-white/5 hover:border-cyan-500/20 transition-all">
-                        <HistoryOutlined className="text-lg text-cyan-400 group-hover:scale-110 transition-transform drop-shadow-[0_0_5px_rgba(34,211,238,0.3)]" />
-                        <span className="text-[11px] text-gray-400 font-bold">Lịch sử xem</span>
+                    <Link 
+                        to="/history" 
+                        onClick={() => setOpenMobileMenu(false)}
+                        className="flex items-center justify-center gap-2 p-2.5 rounded bg-[rgba(0,0,0,0.2)] border border-[rgba(232,200,114,0.06)] hover:border-[#5ec4a0]/30 transition-all group"
+                    >
+                        <HistoryOutlined className="text-xs text-[#5ec4a0] group-hover:scale-110 transition-transform" />
+                        <span className="text-[11px] text-[#c4b896] group-hover:text-[#f0e4c8] font-bold">Lịch sử</span>
                     </Link>
                 </div>
-                {/* Danh sách Menu điều hướng chính */}
-                <nav className="flex flex-col font-bold text-sm tracking-wide border-b border-white/5 pb-4 gap-1">
-                    <Link to="/" className="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-lg hover:bg-white/[0.02] transition-all">Trang chủ</Link>
-                    <Link to="/schedule" className="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-lg hover:bg-white/[0.02] transition-all">Lịch Chiếu Phim</Link>
-                    <Link to="/?filter=new" className="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-lg hover:bg-white/[0.02] transition-all">Mới Cập Nhật</Link>
-                    <Link to="/?filter=top" className="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-lg hover:bg-white/[0.02] transition-all">Top Xem Nhiều</Link>
-                    <Link to="/?filter=completed" className="text-gray-300 hover:text-cyan-400 px-3 py-2 rounded-lg hover:bg-white/[0.02] transition-all">Phim Đã Hoàn Thành</Link>
+                {/* DANH SÁCH MENU ĐIỀU HƯỚNG CHÍNH (Layout dọc mỏng chuẩn HalimThemes) */}
+                <nav className="flex flex-col font-bold text-xs tracking-wider border-b border-[rgba(232,200,114,0.08)] pb-4 gap-0.5 select-none">
+                    <Link 
+                        to="/" 
+                        onClick={() => setOpenMobileMenu(false)}
+                        className="text-[#c4b896] hover:text-[#5ec4a0] px-3 py-2.5 rounded hover:bg-[rgba(94,196,160,0.04)] transition-all flex items-center gap-2.5 border border-transparent hover:border-[rgba(94,196,160,0.1)]"
+                    >
+                        <HomeOutlined className="text-[13px] text-[#e8c872]" />
+                        <span>Trang Chủ</span>
+                    </Link>
+                    <Link 
+                        to="/schedule" 
+                        onClick={() => setOpenMobileMenu(false)}
+                        className="text-[#c4b896] hover:text-[#5ec4a0] px-3 py-2.5 rounded hover:bg-[rgba(94,196,160,0.04)] transition-all flex items-center gap-2.5 border border-transparent hover:border-[rgba(94,196,160,0.1)]"
+                    >
+                        <CalendarOutlined className="text-[13px] text-[#e8c872]" />
+                        <span>Lịch Chiếu Phim</span>
+                    </Link>
+                    <Link 
+                        to="/?filter=new" 
+                        onClick={() => setOpenMobileMenu(false)}
+                        className="text-[#c4b896] hover:text-[#5ec4a0] px-3 py-2.5 rounded hover:bg-[rgba(94,196,160,0.04)] transition-all flex items-center gap-2.5 border border-transparent hover:border-[rgba(94,196,160,0.1)]"
+                    >
+                        <ClockCircleOutlined className="text-[13px] text-[#e8c872]" />
+                        <span>Mới Cập Nhật</span>
+                    </Link>
+                    <Link 
+                        to="/?filter=top" 
+                        onClick={() => setOpenMobileMenu(false)}
+                        className="text-[#c4b896] hover:text-[#5ec4a0] px-3 py-2.5 rounded hover:bg-[rgba(94,196,160,0.04)] transition-all flex items-center gap-2.5 border border-transparent hover:border-[rgba(94,196,160,0.1)]"
+                    >
+                        <ClockCircleOutlined className="text-[13px] text-[#e8c872]" />
+                        <span>Top Xem Nhiều</span>
+                    </Link>
+                    <Link 
+                        to="/?filter=completed" 
+                        onClick={() => setOpenMobileMenu(false)}
+                        className="text-[#c4b896] hover:text-[#5ec4a0] px-3 py-2.5 rounded hover:bg-[rgba(94,196,160,0.04)] transition-all flex items-center gap-2.5 border border-transparent hover:border-[rgba(94,196,160,0.1)]"
+                    >
+                        <ClockCircleOutlined className="text-[13px] text-[#e8c872]" />
+                        <span>Phim Đã Hoàn Thành</span>
+                    </Link>
                 </nav>
 
-                {/* Khối danh mục lựa chọn Thể Loại */}
+                {/* KHỐI DANH MỤC LỰA CHỌN THỂ LOẠI (Hệ lưới đối xứng, đổi màu Ngọc Bích mờ khi hover) */}
                 <div className="flex flex-col gap-3">
-                    <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest pl-3">Thể loại</h3>
-                    <div className="grid grid-cols-2 gap-2 text-xs font-bold px-1">
-                        <Link to="/?genre=tu-tien" className="p-2 rounded-lg bg-emerald-500/5 border border-emerald-500/10 text-emerald-400 text-center hover:bg-emerald-500/10 transition-all">Tu Tiên</Link>
-                        <Link to="/?genre=hien-dai" className="p-2 rounded-lg bg-amber-500/5 border border-amber-500/10 text-amber-400 text-center hover:bg-amber-500/10 transition-all">Hiện Đại</Link>
-
-                        <Link to="/?genre=kiem-hiep" className="p-2 rounded-lg bg-rose-500/5 border border-rose-500/10 text-rose-400 text-center hover:bg-rose-500/10 transition-all">Kiếm Hiệp</Link>
-                        <Link to="/?genre=co-trang" className="p-2 rounded-lg bg-purple-500/5 border border-purple-500/10 text-purple-400 text-center hover:bg-purple-500/10 transition-all">Cổ Trang</Link>
-
-                        <Link to="/?genre=do-thi" className="p-2 rounded-lg bg-blue-500/5 border border-blue-500/10 text-blue-400 text-center hover:bg-blue-500/10 transition-all">Đô Thị</Link>
-                        <Link to="/?genre=trung-sing" className="p-2 rounded-lg bg-fuchsia-500/5 border border-fuchsia-500/10 text-fuchsia-400 text-center hover:bg-fuchsia-500/10 transition-all">Trùng Sinh</Link>
-
-                        <Link to="/?genre=hai-huoc" className="p-2 rounded-lg bg-yellow-500/5 border border-yellow-500/10 text-yellow-400 text-center hover:bg-yellow-500/10 transition-all col-span-2">Hài Hước</Link>
+                    <div className="flex items-center gap-2 pl-3">
+                        <AppstoreOutlined className="text-[11px] text-[#e8c872]" />
+                        <h3 className="text-[11px] font-black text-neutral-500 uppercase tracking-widest m-0">Thể loại</h3>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2 text-xs font-bold px-1 select-none">
+                        <Link 
+                            to="/?genre=tu-tien" 
+                            onClick={() => setOpenMobileMenu(false)}
+                            className="p-2 rounded bg-[rgba(0,0,0,0.2)] border border-[rgba(232,200,114,0.08)] text-[#c4b896] text-center hover:text-[#5ec4a0] hover:border-[#5ec4a0]/30 hover:bg-[rgba(94,196,160,0.05)] transition-all"
+                        >
+                            Tu Tiên
+                        </Link>
+                        <Link 
+                            to="/?genre=hien-dai" 
+                            onClick={() => setOpenMobileMenu(false)}
+                            className="p-2 rounded bg-[rgba(0,0,0,0.2)] border border-[rgba(232,200,114,0.08)] text-[#c4b896] text-center hover:text-[#5ec4a0] hover:border-[#5ec4a0]/30 hover:bg-[rgba(94,196,160,0.05)] transition-all"
+                        >
+                            Hiện Đại
+                        </Link>
+                        <Link 
+                            to="/?genre=kiem-hiep" 
+                            onClick={() => setOpenMobileMenu(false)}
+                            className="p-2 rounded bg-[rgba(0,0,0,0.2)] border border-[rgba(232,200,114,0.08)] text-[#c4b896] text-center hover:text-[#5ec4a0] hover:border-[#5ec4a0]/30 hover:bg-[rgba(94,196,160,0.05)] transition-all"
+                        >
+                            Kiếm Hiệp
+                        </Link>
+                        <Link 
+                            to="/?genre=co-trang" 
+                            onClick={() => setOpenMobileMenu(false)}
+                            className="p-2 rounded bg-[rgba(0,0,0,0.2)] border border-[rgba(232,200,114,0.08)] text-[#c4b896] text-center hover:text-[#5ec4a0] hover:border-[#5ec4a0]/30 hover:bg-[rgba(94,196,160,0.05)] transition-all"
+                        >
+                            Cổ Trang
+                        </Link>
+                        <Link 
+                            to="/?genre=do-thi" 
+                            onClick={() => setOpenMobileMenu(false)}
+                            className="p-2 rounded bg-[rgba(0,0,0,0.2)] border border-[rgba(232,200,114,0.08)] text-[#c4b896] text-center hover:text-[#5ec4a0] hover:border-[#5ec4a0]/30 hover:bg-[rgba(94,196,160,0.05)] transition-all"
+                        >
+                            Đô Thị
+                        </Link>
+                        <Link 
+                            to="/?genre=trung-sing" 
+                            onClick={() => setOpenMobileMenu(false)}
+                            className="p-2 rounded bg-[rgba(0,0,0,0.2)] border border-[rgba(232,200,114,0.08)] text-[#c4b896] text-center hover:text-[#5ec4a0] hover:border-[#5ec4a0]/30 hover:bg-[rgba(94,196,160,0.05)] transition-all"
+                        >
+                            Trùng Sinh
+                        </Link>
+                        <Link 
+                            to="/?genre=hai-huoc" 
+                            onClick={() => setOpenMobileMenu(false)}
+                            className="p-2 rounded bg-[rgba(0,0,0,0.2)] border border-[rgba(232,200,114,0.08)] text-[#c4b896] text-center hover:text-[#5ec4a0] hover:border-[#5ec4a0]/30 hover:bg-[rgba(94,196,160,0.05)] transition-all col-span-2"
+                        >
+                            Hài Hước
+                        </Link>
                     </div>
                 </div>
+
             </div>
         </>
     );
-}
+};
 
 export default memo(MobileMenu);

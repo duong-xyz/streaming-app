@@ -2,6 +2,7 @@ package com.duongxyz.streaming.service;
 
 import com.duongxyz.streaming.dto.MovieItemResponse;
 import com.duongxyz.streaming.dto.MovieResponse;
+import com.duongxyz.streaming.dto.ScheduleResponse;
 import com.duongxyz.streaming.form.MovieCreateForm;
 import com.duongxyz.streaming.form.MovieFilterForm;
 import com.duongxyz.streaming.form.MovieUpdateForm;
@@ -17,4 +18,5 @@ public interface MoviesService {
     MovieResponse updateMovie(Long id, MovieUpdateForm form);
     void delete(Long movieId);
     void incrementViewTotals(Long movieId);
+    ScheduleResponse getScheduleByDay(String currentDay, Pageable pageable);
 }

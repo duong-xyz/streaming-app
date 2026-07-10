@@ -1,6 +1,7 @@
 package com.duongxyz.streaming.entity;
 
 import com.duongxyz.streaming.constant.MovieStatus;
+import com.duongxyz.streaming.utils.ScheduleUtils;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -46,22 +47,30 @@ public class Movies {
     @Column(name = "views_total")
     @Builder.Default
     private Long viewsTotal = 0L;
-    @CreatedDate // Tự động điền khi insert
+    @CreatedDate // Autofill when inserting
     @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
-    @LastModifiedDate // Tự động cập nhật khi update
+    @LastModifiedDate // Automatically updates when an update is released
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     @ToString.Exclude
     private List<Episodes> episodes = new ArrayList<>();
-    @Transient // Chỉ dùng ở RAM Java để trả về JSON, không lưu xuống DB
+    @Transient // Java only uses RAM to return JSON; it does not save to the database
     private Integer latestEpisode;
 
-    // Tự động lưu cả Movie và Episode nhờ CascadeType.ALL
+    // Automatically save both movies and episodes using CascadeType.ALL
     public void addEpisode(Episodes episode) {
         this.episodes.add(episode);
-        episode.setMovie(this); // Tự động gắn bộ phim cha vào tập phim này
+        episode.setMovie(this); // Automatically attach the parent movie to this episode
+    }
+
+    // Schedule Utils
+    public boolean hasScheduleAt(String targetDay, boolean isEarly) {
+        return ScheduleUtils.checkSchedule(this.schedule, targetDay, isEarly);
+    }
+    public String getBroadcastTime() {
+        return ScheduleUtils.getTime(this.schedule);
     }
 }

@@ -4,57 +4,125 @@ import {
     EyeOutlined, CalendarOutlined, FolderAddOutlined,
     LoadingOutlined 
 } from '@ant-design/icons';
-import { message } from 'antd'; // Giữ lại message thông báo hệ thống theo code gốc của bạn
+import { message } from 'antd'; 
 import movieService from '../services/movieService';
 import { useNavigate } from 'react-router-dom';
+import TimePicker24h from '../components/TimePicker24h'
+
+// Mảng cấu hình ánh xạ cố định 7 ngày trong tuần sang hệ thập phân của bit nhị phân
+const DAYS_CONFIG = [
+    { key: 'MON', bit: 1, label: 'Thứ 2' },
+    { key: 'TUE', bit: 2, label: 'Thứ 3' },
+    { key: 'WED', bit: 4, label: 'Thứ 4' },
+    { key: 'THU', bit: 8, label: 'Thứ 5' },
+    { key: 'FRI', bit: 16, label: 'Thứ 6' },
+    { key: 'SAT', bit: 32, label: 'Thứ 7' },
+    { key: 'SUN', bit: 64, label: 'Chủ Nhật' }
+];
 
 function MovieListManager() {
     const [movies, setMovies] = useState([]);
     const [loading, setLoading] = useState(false);
-
     const navigate = useNavigate();
 
-    // Quản lý phân trang đồng bộ Spring Boot (Backend tính từ 0, Antd Table từ 1)
+    // Quản lý trạng thái phân trang DTO đồng bộ Spring Boot
     const [pagination, setPagination] = useState({
         current: 1,
         pageSize: 10,
         total: 0
     });
 
-    // Quản lý trạng thái đóng/mở Modal và Form của Ant Design
+    // Trạng thái điều khiển Modal hộp thoại
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingMovieId, setEditingMovieId] = useState(null); // null: Thêm mới | có ID: Sửa phim
     const [submitting, setSubmitting] = useState(false);
 
-    // Khởi tạo các State lưu trữ dữ liệu ô nhập liệu và lỗi Validation thủ công thay cho AntD Form Instance
+    // State lưu trữ dữ liệu các ô nhập liệu cơ bản (Đã loại bỏ trường schedule dạng String thô)
     const [formData, setFormData] = useState({
         title: '',
         alternativeTitle: '',
         status: '',
-        schedule: '',
         thumbnailUrl: '',
         posterUrl: '',
         description: ''
     });
-    const [formErrors, setFormErrors] = useState({});
 
-    // State quản lý tooltip và popconfirm tự chế theo dòng ID dữ liệu
-    const [hoveredTooltip, setHoveredTooltip] = useState({ id: null, type: null });
+    // EXPERT STATE: Quản lý cấu trúc lịch chiếu trực quan bằng mảng bit chọn Checkbox
+    const [scheduleForm, setScheduleForm] = useState({
+        time: '18:00',   // Khung giờ mặc định phát sóng
+        normalDays: [],  // Lưu danh sách bit các ngày chiếu thường (ví dụ:)
+        earlyDays: []    // Lưu danh sách bit các ngày chiếu sớm (ví dụ:)
+    });
+
+    const [formErrors, setFormErrors] = useState({});
     const [openPopconfirmId, setOpenPopconfirmId] = useState(null);
 
-    // Theo dõi và cập nhật liên tục các ký tự khi gõ phím vào ô nhập liệu
+    // Bộ bắt sự kiện thay đổi dữ liệu của các input text cơ bản
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         if (formErrors[name]) setFormErrors(prev => ({ ...prev, [name]: '' }));
     };
-    // 1. Hàm tải danh sách phim từ Backend (Bóc tách cấu trúc Page)
+    // --- BỘ TIỆN ÍCH XỬ LÝ BITMASK DÀNH CHO ADMIN (UTILITIES) ---
+
+    /**
+     * Hàm giải mã chuỗi từ Backend ("18:00|5|16") thành văn bản tiếng Việt trực quan để hiển thị trên bảng
+     */
+    const decodeScheduleToText = (scheduleStr) => {
+        if (!scheduleStr || !scheduleStr.includes('|')) return 'Chưa cấu hình lịch chiếu';
+        
+        const parts = scheduleStr.split('|');
+        if (parts.length < 3) return 'Lịch chiếu sai định dạng';
+
+        const time = parts[0];
+        const normalBit = parseInt(parts[1]) || 0;
+        const earlyBit = parseInt(parts[2]) || 0;
+
+        // Quét mảng cấu hình dùng phép toán BITWISE AND (&) để tìm các thứ được bật
+        const normalDaysText = DAYS_CONFIG.filter(d => (normalBit & d.bit) !== 0).map(d => d.label).join(', ');
+        const earlyDaysText = DAYS_CONFIG.filter(d => (earlyBit & d.bit) !== 0).map(d => d.label).join(', ');
+
+        let result = `${time}`;
+        if (normalDaysText) result += ` (${normalDaysText})`;
+        if (earlyDaysText) result += ` [Sớm: ${earlyDaysText}]`;
+        return result;
+    };
+
+    /**
+     * Hàm phân rã chuỗi CSDL nạp ngược lại vào hệ thống State Checkbox khi nhấn nút Sửa phim
+     */
+    const parseScheduleToState = (scheduleStr) => {
+        if (!scheduleStr || !scheduleStr.includes('|')) {
+            return { time: '18:00', normalDays: [], earlyDays: [] };
+        }
+        
+        const parts = scheduleStr.split('|');
+        if (parts.length < 3) return { time: '18:00', normalDays: [], earlyDays: [] };
+
+        const time = parts[0];
+        const normalBit = parseInt(parts[1]) || 0;
+        const earlyBit = parseInt(parts[2]) || 0;
+
+        return {
+            time: time,
+            normalDays: DAYS_CONFIG.filter(d => (normalBit & d.bit) !== 0).map(d => d.bit),
+            earlyDays: DAYS_CONFIG.filter(d => (earlyBit & d.bit) !== 0).map(d => d.bit)
+        };
+    };
+
+    /**
+     * Hàm gộp mốc thời gian và các mảng Bit chọn trên UI thành chuỗi nén gửi lên Spring Boot
+     */
+    const encodeStateToSchedule = () => {
+        const normalBitmask = scheduleForm.normalDays.reduce((sum, bit) => sum + bit, 0);
+        const earlyBitmask = scheduleForm.earlyDays.reduce((sum, bit) => sum + bit, 0);
+        return `${scheduleForm.time}|${normalBitmask}|${earlyBitmask}`;
+    };
+    // 1. Hàm tải danh sách phim từ Backend (Bóc tách chính xác cấu trúc VIA_DTO)
     const fetchMovies = async (page = 0, size = 10) => {
         setLoading(true);
         try {
             const data = await movieService.getAllMovies(page, size);
-            console.log(data);
-
             setMovies(data.content);
             setPagination({
                 current: data.page.number + 1,
@@ -78,7 +146,7 @@ function MovieListManager() {
         fetchMovies(pageIndex, pagination.pageSize);
     };
 
-    // 2. Hàm kích hoạt mở Modal để tạo mới phim (Ứng với MovieCreateForm)
+    // 2. Hàm kích hoạt mở Modal để tạo mới phim
     const handleOpenCreateModal = () => {
         setEditingMovieId(null);
         setFormErrors({});
@@ -86,23 +154,26 @@ function MovieListManager() {
             title: '',
             alternativeTitle: '',
             status: '',
-            schedule: '',
             thumbnailUrl: '',
             posterUrl: '',
             description: ''
         });
+        setScheduleForm({
+            time: '18:00',
+            normalDays: [],
+            earlyDays: []
+        });
         setIsModalOpen(true);
     };
 
-    // 3. Hàm kích hoạt mở Modal để cập nhật phim (Ứng với MovieUpdateForm)
+    // 3. Hàm kích hoạt mở Modal để cập nhật phim
     const handleOpenEditModal = async (id) => {
         setEditingMovieId(id);
         setFormErrors({});
         try {
             const movieDetail = await movieService.getMovieById(id);
 
-            // Nạp dữ liệu cũ vào Form. 
-            // Luu ý đặc biệt: status cần lấy chuỗi .code để ô Select của Antd bắt được option tương ứng
+            // Nạp dữ liệu text cơ bản vào Form
             setFormData({
                 title: movieDetail.title || '',
                 alternativeTitle: movieDetail.alternativeTitle || '',
@@ -110,8 +181,11 @@ function MovieListManager() {
                 thumbnailUrl: movieDetail.thumbnailUrl || '',
                 posterUrl: movieDetail.posterUrl || '',
                 status: movieDetail.status?.code || '',
-                schedule: movieDetail.schedule || '',
             });
+
+            // EXPERT LOGIC: Thực hiện phân tích chuỗi "10:00|5|16" đưa về trạng thái các nút tích chọn Checkbox
+            setScheduleForm(parseScheduleToState(movieDetail.schedule));
+
             setIsModalOpen(true);
         } catch (error) {
             message.error("Không thể lấy thông tin chi tiết phim!");
@@ -121,7 +195,7 @@ function MovieListManager() {
     const handleMoveToEpManage = (movieId) => {
         navigate(`/admin/movies/${movieId}/episodes`);
     };
-    // Trình kiểm soát lỗi dữ liệu đầu vào (Mô phỏng chính xác quy định rules cũ của Form.Item)
+    // Trình kiểm soát lỗi dữ liệu đầu vào (Đã nâng cấp để kiểm tra cấu hình lịch chiếu Bitmask)
     const validateForm = () => {
         const errors = {};
         if (!formData.title.trim()) {
@@ -134,20 +208,24 @@ function MovieListManager() {
             errors.alternativeTitle = 'Tên gọi khác không được vượt quá 255 ký tự!';
         }
 
-        if (formData.schedule && formData.schedule.length > 255) {
-            errors.schedule = 'Lịch chiếu không được vượt quá 255 ký tự!';
-        }
-
         if (formData.thumbnailUrl && formData.thumbnailUrl.length > 500) {
             errors.thumbnailUrl = 'Link ảnh thu nhỏ không được vượt quá 500 ký tự!';
+        }
+
+        // Kiểm tra xem Admin đã cấu hình mốc thời gian chiếu chưa
+        if (!scheduleForm.time) {
+            errors.schedule = 'Vui lòng chọn khung giờ phát sóng!';
+        } 
+        // Nếu bật trạng thái phim Đang chiếu nhưng chưa tích chọn bất kỳ ngày nào trong tuần
+        else if (formData.status === 'SHOWING' && scheduleForm.normalDays.length === 0 && scheduleForm.earlyDays.length === 0) {
+            errors.schedule = 'Phim đang phát sóng cần chọn ít nhất một ngày chiếu thường hoặc chiếu sớm!';
         }
 
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
     };
 
-    // 4. Hàm xử lý khi nhấn nút Lưu trên Modal (Tự động phân nhánh Create / Update)
-    // Hàm xử lý khi nhấn nút Lưu trên Modal (Sửa đổi để gửi ĐÚNG FORMAT Object)
+    // Hàm xử lý khi nhấn nút Lưu trên Modal (Tự động nén Bitmask gửi lên Backend)
     const handleFormSubmit = async (e) => {
         if (e) e.preventDefault();
         if (!validateForm()) return;
@@ -155,36 +233,37 @@ function MovieListManager() {
         try {
             setSubmitting(true);
 
-            // 1. Tạo một bảng ánh xạ (Mapping) giữa Code và Tên hiển thị Tiếng Việt
+            // Bảng ánh xạ Map Code sang Tiếng Việt cho cấu trúc Enum Object của bạn
             const statusMapping = {
                 'COMING_SOON': 'Sắp chiếu',
                 'SHOWING': 'Đang chiếu',
-                'STOPPED': 'Đã ngừng chiếu' // Giữ nguyên nhãn cũ trong code của bạn
+                'STOPPED': 'Đã ngừng chiếu'
             };
 
-            // 2. CHUẨN HÓA ĐÚNG FORMAT: Biến chuỗi chữ thuần thành một JSON Object
+            // EXPERT LOGIC: Gọi hàm mã hóa tự động chuyển State Checkbox thành chuỗi "Giờ|BitThường|BitSớm"
+            const compactScheduleString = encodeStateToSchedule();
+
             const formattedValues = {
-                title: formData.title,
-                alternativeTitle: formData.alternativeTitle,
-                description: formData.description,
-                thumbnailUrl: formData.thumbnailUrl,
-                posterUrl: formData.posterUrl,
-                schedule: formData.schedule,
+                title: formData.title.trim(),
+                alternativeTitle: formData.alternativeTitle?.trim() || null,
+                description: formData.description?.trim() || null,
+                thumbnailUrl: formData.thumbnailUrl?.trim() || null,
+                posterUrl: formData.posterUrl?.trim() || null,
+                schedule: compactScheduleString, // Gửi chuỗi nén chuẩn dữ liệu dạng: "18:00|5|16"
                 status: formData.status ? {
-                    code: formData.status,                          // Ví dụ: "SHOWING"
-                    displayName: statusMapping[formData.status] || '' // Ví dụ: "Đang chiếu"
-                } : (editingMovieId ? null : { code: 'COMING_SOON', displayName: 'Sắp chiếu' }) // Fallback thêm mới chuẩn xác
+                    code: formData.status,
+                    displayName: statusMapping[formData.status] || ''
+                } : (editingMovieId ? null : { code: 'COMING_SOON', displayName: 'Sắp chiếu' })
             };
 
-            console.log("Dữ liệu chuẩn định dạng Object gửi lên Backend:", formattedValues);
+            console.log("Dữ liệu nén Bitmask chuẩn Object gửi lên Backend:", formattedValues);
 
             if (editingMovieId) {
-                // TRUYỀN formattedValues (Đã có status dạng Object) thay vì values gốc
                 await movieService.updateMovie(editingMovieId, formattedValues);
-                message.success("Cập nhật thông tin phim thành công!");
+                message.success("Cập nhật thông tin phim và lịch chiếu thành công!");
             } else {
                 await movieService.createMovie(formattedValues);
-                message.success("Thêm phim mới thành công!");
+                message.success("Thêm phim mới và cấu hình lịch chiếu thành công!");
             }
 
             setIsModalOpen(false);
@@ -192,13 +271,15 @@ function MovieListManager() {
         } catch (error) {
             if (error.response) {
                 message.error(error.response.data?.message || "Lưu thông tin thất bại!");
+            } else {
+                message.error("Lỗi kết nối mạng, vui lòng thử lại!");
             }
         } finally {
             setSubmitting(false);
         }
     };
 
-    // 5. Hàm xử lý gửi yêu cầu xóa phim lên Server
+    // Hàm xử lý gửi yêu cầu xóa phim lên Server
     const handleDelete = async (id) => {
         try {
             await movieService.deleteMovie(id);
@@ -226,10 +307,10 @@ function MovieListManager() {
                 </button>
             </div>
 
-            {/* 2. Bảng hiển thị thông tin phim của Ant Design -> Chuyển sang Table HTML5 Thuần v4 */}
+            {/* 2. Bảng hiển thị thông tin phim HTML5 Thuần v4 */}
             <div className="shadow-sm border border-slate-200 rounded-lg overflow-hidden bg-white relative">
                 
-                {/* HIỆU ỨNG LOADING XOAY TRÒN: Xuất hiện khi loading === true */}
+                {/* HIỆU ỨNG LOADING XOAY TRÒN */}
                 {loading && (
                     <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-20 transition-all">
                         <LoadingOutlined className="animate-spin text-3xl text-cyan-600" />
@@ -243,7 +324,7 @@ function MovieListManager() {
                                 <th className="p-4 w-[70px] text-center">ID</th>
                                 <th className="p-4 w-[80px] text-center">Ảnh</th>
                                 <th className="p-4">Thông tin phim</th>
-                                <th className="p-4 w-[200px]">Lịch chiếu & Trạng thái</th>
+                                <th className="p-4 w-[280px]">Lịch chiếu & Trạng thái</th>
                                 <th className="p-4 w-[110px]">Lượt xem</th>
                                 <th className="p-4 w-[120px] text-center">Hành động</th>
                             </tr>
@@ -262,10 +343,9 @@ function MovieListManager() {
                                     const statusName = record.status?.displayName || 'Sắp chiếu';
 
                                     // Phân loại màu sắc Tag dựa trên mã code Enum nhận từ Spring Boot
-                                    let tagClass = 'bg-amber-50 text-amber-700 border-amber-200'; // Mặc định màu cam cho COMING_SOON
-                                    if (statusCode === 'SHOWING') tagClass = 'bg-blue-50 text-blue-700 border-blue-200'; // Màu xanh dương cho Đang chiếu
-                                    if (statusCode === 'STOPPED') tagClass = 'bg-red-50 text-red-700 border-red-200'; // Màu đỏ cho Đã ngừng chiếu
-
+                                    let tagClass = 'bg-amber-50 text-amber-700 border-amber-200';
+                                    if (statusCode === 'SHOWING') tagClass = 'bg-blue-50 text-blue-700 border-blue-200';
+                                    if (statusCode === 'STOPPED') tagClass = 'bg-red-50 text-red-700 border-red-200';
                                     return (
                                         <tr key={`movie-row-${record.id || index}`} className="hover:bg-slate-50/50 transition-colors">
                                             {/* Cột ID */}
@@ -274,7 +354,7 @@ function MovieListManager() {
                                             {/* Cột Ảnh: Nếu không có ảnh thu nhỏ, tự động lấy ảnh poster dọc làm ảnh thay thế */}
                                             <td className="p-4 text-center">
                                                 <img 
-                                                    src={record.thumbnailUrl || record.posterUrl} 
+                                                    src={record.thumbnailUrl || record.posterUrl || 'https://placehold.co'} 
                                                     alt={record.title}
                                                     className="w-12 h-12 rounded-md object-cover border border-slate-200 shadow-xs inline-block"
                                                 />
@@ -295,14 +375,14 @@ function MovieListManager() {
                                                 <div className="flex flex-col gap-1.5">
                                                     <div>
                                                         <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded border select-none ${tagClass}`}>
-                                                            {statusName} {/* Hiển thị trực tiếp chữ tiếng Việt "Đang chiếu", "Sắp chiếu" gửi từ DB */}
+                                                            {statusName}
                                                         </span>
                                                     </div>
-                                                    {record.schedule && (
-                                                        <span className="text-xs text-slate-500 flex items-center gap-1">
-                                                            <CalendarOutlined className="text-slate-400" /> {record.schedule}
-                                                        </span>
-                                                    )}
+                                                    {/* EXPERT UI UPDATE: Tự động chạy hàm giải mã chuỗi Bitmask phức tạp thành text tường minh */}
+                                                    <span className="text-xs text-slate-500 font-medium flex items-start gap-1 leading-snug">
+                                                        <CalendarOutlined className="text-slate-400 mt-0.5" />
+                                                        <span>{decodeScheduleToText(record.schedule)}</span>
+                                                    </span>
                                                 </div>
                                             </td>
 
@@ -312,7 +392,8 @@ function MovieListManager() {
                                                     <EyeOutlined className="text-slate-400" /> {record.viewsTotal?.toLocaleString('vi-VN') || 0}
                                                 </span>
                                             </td>
-                                            {/* Cột Hành động: render cụm Space size="small" lồng Buttons, Tooltips và Popconfirm */}
+
+                                            {/* Cột Hành động */}
                                             <td className="p-4 text-center">
                                                 <div className="flex items-center justify-center gap-1.5 whitespace-nowrap relative">
                                                     
@@ -330,7 +411,7 @@ function MovieListManager() {
                                                         </span>
                                                     </div>
 
-                                                    {/* Tooltip + Nút bấm kích hoạt hàm mở Modal sửa thông tin phim */}
+                                                    {/* Tooltip + Nút Sửa thông tin phim */}
                                                     <div className="relative group/tooltip">
                                                         <button
                                                             type="button"
@@ -344,7 +425,7 @@ function MovieListManager() {
                                                         </span>
                                                     </div>
 
-                                                    {/* Tooltip + Nút bấm kích hoạt hộp thoại xác nhận xóa phim */}
+                                                    {/* Tooltip + Nút Xóa phim kèm Popconfirm tự chế */}
                                                     <div className="relative group/tooltip">
                                                         <button
                                                             type="button"
@@ -357,7 +438,7 @@ function MovieListManager() {
                                                             Xóa phim
                                                         </span>
 
-                                                        {/* HỘP THOẠI POPCONFIRM TỰ CHẾ: Xác nhận xóa bộ phim này? */}
+                                                        {/* HỘP THOẠI POPCONFIRM TỰ CHẾ */}
                                                         {openPopconfirmId === record.id && (
                                                             <div className="absolute right-0 bottom-full mb-2 w-64 bg-white border border-slate-200 p-3 rounded-lg shadow-xl z-50 text-left whitespace-normal animate-in fade-in slide-in-from-bottom-1 duration-150">
                                                                 <h5 className="font-bold text-slate-800 text-xs mb-1">Xác nhận xóa bộ phim này?</h5>
@@ -396,8 +477,7 @@ function MovieListManager() {
                         </tbody>
                     </table>
                 </div>
-
-                {/* KHỐI PHÂN TRANG (PAGINATION) */}
+                {/* KHỐI PHÂN TRANG (PAGINATION) COMPATIBLE VIA_DTO */}
                 {pagination.total > 0 && (
                     <div className="flex items-center justify-between p-4 bg-slate-50 border-t border-slate-100 text-xs font-medium text-slate-500 select-none">
                         <span>Tổng số: <strong className="font-bold text-slate-800">{pagination.total}</strong> kết quả</span>
@@ -426,7 +506,6 @@ function MovieListManager() {
                 )}
             </div>
 
-            {/* 3. Component Modal phục vụ song song tính năng Tạo mới & Sửa đổi */}
             {/* 3. Component Modal phục vụ song song tính năng Tạo mới & Sửa đổi */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
@@ -483,7 +562,8 @@ function MovieListManager() {
                                     <span className="text-xs text-red-500 pl-0.5 animate-in fade-in duration-150">{formErrors.alternativeTitle}</span>
                                 )}
                             </div>
-                            {/* Logic Ẩn/Hiện ô chọn Status: Chỉ mở ra khi sửa phim (Khớp với cấu trúc MovieUpdateForm) */}
+
+                            {/* Logic Ẩn/Hiện ô chọn Status: Chỉ mở ra khi sửa phim */}
                             {editingMovieId && (
                                 <div className="flex flex-col gap-1.5">
                                     <label className="text-xs font-semibold text-slate-600">Trạng thái phim</label>
@@ -499,26 +579,95 @@ function MovieListManager() {
                                     </select>
                                 </div>
                             )}
+                            {/* EXPERT UI UPDATE: Trường Cấu Hình Lịch Chiếu Nâng Cao (Thay thế Ô Input văn bản thô cũ) */}
+                            <div className="flex flex-col gap-2 rounded-xl border border-slate-100 bg-slate-50/50 p-4">
+                                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Cấu hình lịch phát sóng phim</span>
+                                
+                                {/* 1. Ô Chọn Khung Giờ Phát Sóng */}
+                                <div className="flex flex-col gap-1.5 w-32">
+                                    <label className="text-[11px] font-semibold text-slate-500">Giờ phát sóng</label>
+                                    <TimePicker24h
+                                        size='sm'
+                                        value={scheduleForm.time}
+                                        onChange={(newTime) => setScheduleForm(prev => ({ ...prev, time: newTime }))}
+                                    />
+                                </div>
 
-                            {/* Trường Schedule */}
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-semibold text-slate-600">Lịch chiếu phim</label>
-                                <input 
-                                    type="text"
-                                    name="schedule"
-                                    value={formData.schedule}
-                                    onChange={handleInputChange}
-                                    placeholder="Ví dụ: Tối thứ 7 hàng tuần, 20h mỗi ngày..."
-                                    className={`w-full bg-white border rounded-lg px-3.5 py-2 text-sm outline-none transition-all ${
-                                        formErrors.schedule ? 'border-red-500 focus:ring-2 focus:ring-red-500/20' : 'border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
-                                    }`}
-                                />
+                                {/* 2. Hàng Checkbox chọn ngày Chiếu Thường */}
+                                <div className="flex flex-col gap-1.5 mt-1">
+                                    <label className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                        <span>Các ngày cập nhật tập mới (Chiếu thường)</span>
+                                    </label>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {DAYS_CONFIG.map(day => {
+                                            const isChecked = scheduleForm.normalDays.includes(day.bit);
+                                            return (
+                                                <button
+                                                    key={`normal-day-${day.key}`}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setScheduleForm(prev => ({
+                                                            ...prev,
+                                                            normalDays: isChecked 
+                                                                ? prev.normalDays.filter(b => b !== day.bit)
+                                                                : [...prev.normalDays, day.bit]
+                                                        }));
+                                                        if (formErrors.schedule) setFormErrors(p => ({ ...p, schedule: '' }));
+                                                    }}
+                                                    className={`px-3 py-1.5 text-xs font-medium rounded-md border cursor-pointer select-none transition-all ${
+                                                        isChecked 
+                                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-300 font-bold shadow-xs' 
+                                                            : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                                                    }`}
+                                                >
+                                                    {day.label}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* 3. Hàng Checkbox chọn ngày Chiếu Sớm */}
+                                <div className="flex flex-col gap-1.5 mt-2">
+                                    <label className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                                        <span>Các ngày mở kho chiếu sớm (Diện ưu tiên / VIP)</span>
+                                    </label>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {DAYS_CONFIG.map(day => {
+                                            const isChecked = scheduleForm.earlyDays.includes(day.bit);
+                                            return (
+                                                <button
+                                                    key={`early-day-${day.key}`}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setScheduleForm(prev => ({
+                                                            ...prev,
+                                                            earlyDays: isChecked 
+                                                                ? prev.earlyDays.filter(b => b !== day.bit)
+                                                                : [...prev.earlyDays, day.bit]
+                                                        }));
+                                                        if (formErrors.schedule) setFormErrors(p => ({ ...p, schedule: '' }));
+                                                    }}
+                                                    className={`px-3 py-1.5 text-xs font-medium rounded-md border cursor-pointer select-none transition-all ${
+                                                        isChecked 
+                                                            ? 'bg-amber-50 text-amber-700 border-amber-300 font-bold shadow-xs' 
+                                                            : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                                                    }`}
+                                                >
+                                                    {day.label}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                                
                                 {formErrors.schedule && (
-                                    <span className="text-xs text-red-500 pl-0.5 animate-in fade-in duration-150">{formErrors.schedule}</span>
+                                    <span className="text-xs text-red-500 pl-0.5 mt-1 animate-in fade-in duration-150">{formErrors.schedule}</span>
                                 )}
                             </div>
-
-                            {/* Trường ThumbnailUrl - Đồng bộ giới hạn 500 ký tự */}
+                            {/* Trường ThumbnailUrl */}
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-xs font-semibold text-slate-600">Đường dẫn ảnh thu nhỏ (Thumbnail URL)</label>
                                 <input 

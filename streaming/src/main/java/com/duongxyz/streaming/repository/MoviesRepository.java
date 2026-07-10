@@ -1,5 +1,6 @@
 package com.duongxyz.streaming.repository;
 
+import com.duongxyz.streaming.constant.MovieStatus;
 import com.duongxyz.streaming.entity.Movies;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -11,7 +12,7 @@ import java.util.List;
 public interface MoviesRepository
         extends JpaRepository<Movies, Long>, JpaSpecificationExecutor<Movies> {
 
-
+    List<Movies> findByStatus(MovieStatus status);
     // CHỈ ĐẾM: Trả về danh sách gồm cặp [ID phim, Số lượng tập] của 12 phim
     @Query("SELECT e.movie.id, COUNT(e) FROM Episodes e WHERE e.movie.id IN :movieIds GROUP BY e.movie.id")
     List<Object[]> countEpisodesByMovieIds(@Param("movieIds") List<Long> movieIds);

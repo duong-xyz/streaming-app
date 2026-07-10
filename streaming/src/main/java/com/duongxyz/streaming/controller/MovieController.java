@@ -2,6 +2,7 @@ package com.duongxyz.streaming.controller;
 
 import com.duongxyz.streaming.dto.MovieItemResponse;
 import com.duongxyz.streaming.dto.MovieResponse;
+import com.duongxyz.streaming.dto.ScheduleResponse;
 import com.duongxyz.streaming.form.MovieCreateForm;
 import com.duongxyz.streaming.form.MovieFilterForm;
 import com.duongxyz.streaming.form.MovieUpdateForm;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class MovieController {
     private final MoviesService moviesService;
 
-    // Lấy danh sách phim phân trang cho trang chủ
+    // Get list of paginated movies to homepage
     @GetMapping
     public ResponseEntity<Page<MovieItemResponse>> getAllMovieItems(
             MovieFilterForm form,
@@ -36,7 +37,7 @@ public class MovieController {
         return ResponseEntity.ok(movies);
     }
 
-    // Lấy chi tiết một bộ phim theo ID
+    // Get detail movie by id
     @GetMapping("/{id}")
     public ResponseEntity<MovieResponse> getMovieById(@PathVariable("id") @MovieIdExists Long id) {
         MovieResponse movie = moviesService.findMovieById(id);
@@ -49,6 +50,22 @@ public class MovieController {
     public ResponseEntity<Void> incrementMovieView(@PathVariable("id") Long id) {
         moviesService.incrementViewTotals(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Endpoint lấy lịch chiếu phim theo Thứ trong tuần (hỗ trợ phân trang)
+     * GET /api/v1/movies/schedule?day=FRI&page=0&size=12
+     *
+     * @param day      Viết tắt của thứ (Ví dụ: MON, TUE, WED, THU, FRI, SAT, SUN)
+     * @param pageable Đối tượng phân trang tự động injection từ RequestParam (page, size, sort)
+     */
+    @GetMapping("/schedule")
+    public ResponseEntity<ScheduleResponse> getMovieSchedule(
+            @RequestParam(name = "day") String day,
+            @PageableDefault(size = 12, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        //This call is made to the Service layer to handle bitmask processing and RAM paging
+        ScheduleResponse scheduleResponse = moviesService.getScheduleByDay(day, pageable);
+        return ResponseEntity.ok(scheduleResponse);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

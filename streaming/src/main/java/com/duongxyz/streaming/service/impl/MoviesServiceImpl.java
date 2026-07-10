@@ -1,7 +1,9 @@
 package com.duongxyz.streaming.service.impl;
 
+import com.duongxyz.streaming.constant.MovieStatus;
 import com.duongxyz.streaming.dto.MovieItemResponse;
 import com.duongxyz.streaming.dto.MovieResponse;
+import com.duongxyz.streaming.dto.ScheduleResponse;
 import com.duongxyz.streaming.entity.Movies;
 import com.duongxyz.streaming.form.MovieCreateForm;
 import com.duongxyz.streaming.form.MovieFilterForm;
@@ -13,13 +15,17 @@ import com.duongxyz.streaming.service.MoviesService;
 import com.duongxyz.streaming.specification.MovieSpecification;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -91,5 +97,55 @@ public class MoviesServiceImpl implements MoviesService {
         movieViewOptimizedService.incrementMovieView(movieId);
     }
 
+    @Override
+    public ScheduleResponse getScheduleByDay(String currentDay, Pageable pageable) {
+        List<Movies> activeMovies = moviesRepository.findByStatus(MovieStatus.SHOWING);
+        if (activeMovies.isEmpty()) {
+            return new ScheduleResponse(Page.empty(pageable), Page.empty(pageable));
+        }
+        List<Movies> showingTodayEntities = activeMovies.stream()
+                .filter(m -> m.hasScheduleAt(currentDay, false))
+                .toList();
+        List<Movies> showingEarlyEntities = activeMovies.stream()
+                .filter(m -> m.hasScheduleAt(currentDay, true))
+                .toList();
+        // In-Memory Pagination
+        Page<Movies> todayMoviePage = paginateList(showingTodayEntities, pageable);
+        Page<Movies> earlyMoviePage = paginateList(showingEarlyEntities, pageable);
+
+        List<Long> pagedMovieIds = Stream.concat(
+                todayMoviePage.getContent().stream(),
+                earlyMoviePage.getContent().stream())
+                .map(Movies::getId)
+                .distinct().toList();
+
+        if (!pagedMovieIds.isEmpty()) {
+            List<Object[]> maxEpisodes = moviesRepository.findMaxEpisodeByMovieIds(pagedMovieIds);
+            Map<Long, Integer> maxEpisodeMap = maxEpisodes.stream().collect(Collectors.toMap(
+                    row -> (Long) row[0],
+                    row -> row[1] != null ? ((Number) row[1]).intValue() : 0
+            ));
+            Consumer<Movies> setLatestEp = movie ->
+                    movie.setLatestEpisode(maxEpisodeMap.getOrDefault(movie.getId(), 0));
+            todayMoviePage.forEach(setLatestEp);
+            earlyMoviePage.forEach(setLatestEp);
+        }
+        Page<MovieItemResponse> moviesShowingToday = todayMoviePage.map(movieMapper::map);
+        Page<MovieItemResponse> moviesShowingEarly = earlyMoviePage.map(movieMapper::map);
+        return new ScheduleResponse(moviesShowingToday, moviesShowingEarly);
+    }
+
+    // Utility function to trim the list (SubList) based on the Pageable offset
+    private Page<Movies> paginateList(List<Movies> originalList, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), originalList.size());
+
+        List<Movies> pagedContent = new ArrayList<>();
+        if (start < originalList.size()) {
+            pagedContent = originalList.subList(start, end);
+        }
+
+        return new PageImpl<>(pagedContent, pageable, originalList.size());
+    }
 
 }

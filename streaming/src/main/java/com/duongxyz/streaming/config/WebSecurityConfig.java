@@ -52,7 +52,7 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Spring Security dùng chung cấu hình của WebMvcConfigurer
+                // Spring Security dùng chung setting của WebMvcConfigurer
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception

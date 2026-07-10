@@ -47,6 +47,26 @@ const movieService = {
             }
         });
         return response.data;
+    },
+    incrementTotalViews: async (movieId) => {
+        const response = await apiClient.put(`/movies/${movieId}/view`);
+        return response.data;
+    },
+    /**
+     * Get the pagination movie schedule by day of the week.
+     * @param {string} day - Abbreviations for days of the week (MON, TUE, WED, THU, FRI, SAT, SUN)
+     * @param {number} page - Current page (default is 0)
+     * @param {number} size - Number of films per page (default is 12 for grid display)
+     */
+    getMovieSchedule: async (day, page = 0, size = 12) => {
+        const response = await apiClient.get('/movies/schedule', {
+            params: {
+                day: day,
+                page: page,
+                size: size
+            }
+        });
+        return response.data;
     }
 };
 

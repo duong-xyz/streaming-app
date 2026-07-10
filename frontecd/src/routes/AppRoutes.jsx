@@ -12,6 +12,7 @@ import EpisodeListManager from '../pages/EpisodeListManager'
 import VideoQualityListManager from '../pages/VideoQualityListManager'
 import UserListManager from '../pages/UserListManager'
 import MovieDetail from '../pages/MovieDetail';
+import Schedule from '../pages/Schedule';
 
 const AdminDashboard = () => {
     return (
@@ -31,6 +32,7 @@ const AppRoutes = () => {
                 <Route path="movie/:id" element={<MovieDetail />} />
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
+                <Route path='movie/schedule' element={<Schedule />} />
             </Route>
 
             {/* Cụm Admin Protected Routes */}

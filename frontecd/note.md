@@ -8,7 +8,7 @@ export default defineConfig({
 })
 
 
-
+The element has a fixed position. Automatically set up a new display layer (Stacking Context).
 
 <style>{`
             .plyr-dark-theme { --plyr-color-main: #06b6d4; }
@@ -41,3 +41,5 @@ export default defineConfig({
                     />
                 </div>
             </div>
+
+Để thực hiện đúng cam kết nâng cấp chuẩn phong vị HalimThemes / hoathinh3d.st giống như các component trước, bảng xếp hạng sẽ được bọc dải viền mờ, tích hợp hệ màu Ngọc Bích Jade dịu mát kết hợp Vàng Gold rực sáng, loại bỏ hoàn toàn tone xám lạnh và xanh cyan thô cũ.
